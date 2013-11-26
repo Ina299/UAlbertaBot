@@ -7,7 +7,7 @@
 // constructor
 Logger::Logger() 
 {
-	logFile = "C:\\Users\\Dave\\Desktop\\UalbertaBot_log.txt";
+	logFile = "C:\\Users\\ina\\Desktop\\UalbertaBot_log.txt";
 	logStream.open(logFile.c_str(), std::ofstream::app);
 }
 
