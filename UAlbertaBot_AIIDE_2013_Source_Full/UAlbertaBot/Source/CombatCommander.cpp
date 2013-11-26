@@ -58,6 +58,7 @@ void CombatCommander::assignAttackSquads(std::set<BWAPI::Unit *> & unitsToAssign
 	}
 
 	// do we have workers in combat
+	// *Ina Important function*
 	bool attackEnemy = !unitsToAssign.empty() && !workersDefending && StrategyManager::Instance().doAttack(unitsToAssign);
 
 	// if we are attacking, what area are we attacking?

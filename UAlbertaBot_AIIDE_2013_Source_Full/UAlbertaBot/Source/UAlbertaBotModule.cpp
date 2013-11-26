@@ -79,8 +79,8 @@ void UAlbertaBotModule::onEnd(bool isWinner)
 				sum -= sqrt((double)(unit->getHitPoints() + unit->getShields()));
 			}
 		}
-
-		//result << "Game against " << BWAPI::Broodwar->enemy()->getName() << " " << win << " with strategy " << StrategyManager::Instance().getCurrentStrategy() << "\n";
+		//Ina comment in the sentence below
+		result << "Game against " << BWAPI::Broodwar->enemy()->getName() << " " << win << " with strategy " << StrategyManager::Instance().getCurrentStrategy() << "\n";
 
 		result << sum << " " << BWAPI::Broodwar->getFrameCount() << "\n";
 
