@@ -1,3 +1,6 @@
+#pragma once
+
+#include "Common.h"
 #include "BWTA.h"
 #include "base/BuildOrderQueue.h"
 #include "InformationManager.h"
@@ -8,11 +11,18 @@
 
 #include "..\..\StarcraftBuildOrderSearch\Source\starcraftsearch\StarcraftData.hpp"
 
+typedef std::pair<int, int> IntPair;
+typedef std::pair<MetaType, UnitCountType> MetaPair;
+typedef std::vector<MetaPair> MetaPairVector;
+
 class Neural
 {
 	Neural();
 	~Neural() {}
 
+	std::vector<std::string>	protossOpeningBook;
+	std::vector<std::string>	terranOpeningBook;
+	std::vector<std::string>	zergOpeningBook;
 
 	std::string					readDir;
 	std::string					writeDir;
@@ -59,7 +69,7 @@ public:
 	enum { TerranMarineRush = 0, NumTerranStrategies = 1 };
 	enum { ZergZerglingRush = 0, NumZergStrategies = 1 };
 
-	static	StrategyManager &	Instance();
+	static	Neural &	Instance();
 
 	void				onEnd(const bool isWinner);
 
