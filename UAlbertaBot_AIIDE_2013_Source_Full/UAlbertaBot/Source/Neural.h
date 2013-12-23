@@ -2,7 +2,6 @@
 
 #include "Common.h"
 #include "BWTA.h"
-#include "base/BuildOrderQueue.h"
 #include "InformationManager.h"
 #include "base/WorkerManager.h"
 #include "base/StarcraftBuildOrderSearchManager.h"
