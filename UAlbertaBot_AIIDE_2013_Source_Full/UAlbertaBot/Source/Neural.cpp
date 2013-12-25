@@ -2,6 +2,9 @@
 #include "Neural.h"
 #include "Layer.h"
 #include "NN.h"
+#include "fann.h"
+#include "fann_train.h"
+
 
 // constructor
 Neural::Neural()
@@ -21,8 +24,14 @@ Neural & Neural::Instance()
 	return instance;
 }
 
-class NNTest {
+class Neural {
 	Layer::Instance();
+	struct fann_train_data *data = fann_read_train_from_file("train.txt");
+	fann_reset_MSE(ann);
+	fann_test_data(ann, data);
+	printf("Mean Square Error: %f\n", fann_get_MSE(ann));
+	fann_destroy_train(data);
+
 
 	nn.init(2, 2, 1);
 	nn.setLearningRate(0.2);
