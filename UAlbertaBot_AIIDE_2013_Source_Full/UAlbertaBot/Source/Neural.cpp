@@ -8,10 +8,8 @@
 
 // constructor
 Neural::Neural()
-: firstAttackSent(false)
-, currentStrategy(0)
-, selfRace(BWAPI::Broodwar->self()->getRace())
-, enemyRace(BWAPI::Broodwar->enemy()->getRace())
+:selfRace(BWAPI::Broodwar->self()->getRace())
+,enemyRace(BWAPI::Broodwar->enemy()->getRace())
 {
 	addStrategies();
 	setStrategy();
@@ -25,66 +23,7 @@ Neural & Neural::Instance()
 }
 
 class Neural {
-	Layer::Instance();
-	struct fann_train_data *data = fann_read_train_from_file("train.txt");
-	fann_reset_MSE(ann);
-	fann_test_data(ann, data);
-	printf("Mean Square Error: %f\n", fann_get_MSE(ann));
-	fann_destroy_train(data);
 
-
-	nn.init(2, 2, 1);
-	nn.setLearningRate(0.2);
-
-	// ŒP—ûƒf[ƒ^‚Ìì¬
-	double[][] trainingSet = new double[4][3];
-	// ŒP—ûƒf[ƒ^0
-	trainingSet[0][0] = 0;  // “ü—Í1
-	trainingSet[0][1] = 0;  // “ü—Í2
-	trainingSet[0][2] = 0;  // ‹³Žt
-
-	// ŒP—ûƒf[ƒ^1
-	trainingSet[1][0] = 0;
-	trainingSet[1][1] = 1;
-	trainingSet[1][2] = 1;
-
-	// ŒP—ûƒf[ƒ^2
-	trainingSet[2][0] = 1;
-	trainingSet[2][1] = 0;
-	trainingSet[2][2] = 1;
-
-	// ŒP—ûƒf[ƒ^3
-	trainingSet[3][0] = 1;
-	trainingSet[3][1] = 1;
-	trainingSet[3][2] = 0;
-
-	// ŒP—ûƒf[ƒ^‚ðŠwK
-	double error = 1.0;
-	int count = 0;
-	while ((error > 0.0001) && (count < 50000)) {
-		error = 0;
-		count++;
-		// 4‚Â‚ÌŒP—ûƒf[ƒ^‚ðŒë·‚ª¬‚³‚­‚È‚é‚Ü‚ÅŒJ‚è•Ô‚µŠwK
-		for (int i = 0; i<4; i++) {
-			// “ü—Í‘w‚É’l‚ðÝ’è
-			nn.setInput(0, trainingSet[i][0]);
-			nn.setInput(1, trainingSet[i][1]);
-			// ‹³ŽtM†‚ðÝ’è
-			nn.setTeacherValue(0, trainingSet[i][2]);
-			// ŠwKŠJŽn
-			nn.feedForward();
-			error += nn.calculateError();
-			nn.backPropagate();
-		}
-		error /= 4.0;
-		System.out.println(count + "\t" + error);
-	}
-
-	// ŠwKŠ®—¹
-	nn.setInput(0, 0);  // “ü—Í1
-	nn.setInput(1, 0);  // “ü—Í2
-	nn.feedForward();   // o—Í‚ðŒvŽZ
-	System.out.println(nn.getOutput(0));
 }
 
 
@@ -98,8 +37,8 @@ void Neural::readResults()
 	// if the file doesn't exist something is wrong so just set them to default settings
 	if (stat(Options::FileIO::FILE_SETTINGS, &buf) == -1)
 	{
-		readDir = "bwapi-data/testio/read/";
-		writeDir = "bwapi-data/testio/write/";
+		readNetwork = "bwapi-data/testio/read/";
+		writeNetwork = "bwapi-data/testio/write/";
 	}
 	else
 	{
@@ -110,7 +49,7 @@ void Neural::readResults()
 	}
 
 	// the file corresponding to the enemy's previous results
-	std::string readFile = readDir + BWAPI::Broodwar->enemy()->getName() + ".txt";
+	std::string readFile = readNetwork + BWAPI::Broodwar->enemy()->getName() + "_network.txt";
 
 	// if the file doesn't exist, set the results to zeros
 	if (stat(readFile.c_str(), &buf) == -1)
@@ -190,3 +129,133 @@ void Neural::onEnd(const bool isWinner)
 	}
 }
 
+
+#include "floatfann.h"
+#include "fann_cpp.h"
+
+#include <ios>
+#include <iostream>
+#include <iomanip>
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::setw;
+using std::left;
+using std::right;
+using std::showpos;
+using std::noshowpos;
+
+
+// Callback function that simply prints the information to cout
+int print_callback(FANN::neural_net &net, FANN::training_data &train,
+	unsigned int max_epochs, unsigned int epochs_between_reports,
+	float desired_error, unsigned int epochs, void *user_data)
+{
+	cout << "Epochs     " << setw(8) << epochs << ". "
+		<< "Current Error: " << left << net.get_MSE() << right << endl;
+	return 0;
+}
+
+// Test function that demonstrates usage of the fann C++ wrapper
+void xor_test()
+{
+	cout << endl << "XOR test started." << endl;
+
+	const float learning_rate = 0.7f;
+	const unsigned int num_layers = 3;
+	const unsigned int num_input = 2;
+	const unsigned int num_hidden = 3;
+	const unsigned int num_output = 1;
+	const float desired_error = 0.001f;
+	const unsigned int max_iterations = 300000;
+	const unsigned int iterations_between_reports = 1000;
+
+	cout << endl << "Creating network." << endl;
+
+	FANN::neural_net net;
+	net.create_standard(num_layers, num_input, num_hidden, num_output);
+
+	net.set_learning_rate(learning_rate);
+
+	net.set_activation_steepness_hidden(1.0);
+	net.set_activation_steepness_output(1.0);
+
+	net.set_activation_function_hidden(FANN::SIGMOID_SYMMETRIC_STEPWISE);
+	net.set_activation_function_output(FANN::SIGMOID_SYMMETRIC_STEPWISE);
+
+	// Set additional properties such as the training algorithm
+	//net.set_training_algorithm(FANN::TRAIN_QUICKPROP);
+
+	// Output network type and parameters
+	cout << endl << "Network Type                         :  ";
+	switch (net.get_network_type())
+	{
+	case FANN::LAYER:
+		cout << "LAYER" << endl;
+		break;
+	case FANN::SHORTCUT:
+		cout << "SHORTCUT" << endl;
+		break;
+	default:
+		cout << "UNKNOWN" << endl;
+		break;
+	}
+	net.print_parameters();
+
+	cout << endl << "Training network." << endl;
+
+	FANN::training_data data;
+
+
+
+	if (data.read_train_from_file("D:/work/FANN-2.2.0-Source/bin/xor.data"))
+	{
+		// Initialize and train the network with the data
+		net.init_weights(data);
+
+		cout << "Max Epochs " << setw(8) << max_iterations << ". "
+			<< "Desired Error: " << left << desired_error << right << endl;
+		net.set_callback(print_callback, NULL);
+		net.train_on_data(data, max_iterations,
+			iterations_between_reports, desired_error);
+
+		cout << endl << "Testing network." << endl;
+
+		for (unsigned int i = 0; i < data.length_train_data(); ++i)
+		{
+			// Run the network on the test data
+			fann_type *calc_out = net.run(data.get_input()[i]);
+
+			cout << "XOR test (" << showpos << data.get_input()[i][0] << ", "
+				<< data.get_input()[i][1] << ") -> " << *calc_out
+				<< ", should be " << data.get_output()[i][0] << ", "
+				<< "difference = " << noshowpos
+				<< fann_abs(*calc_out - data.get_output()[i][0]) << endl;
+		}
+
+		cout << endl << "Saving network." << endl;
+
+		// Save the network in floating point and fixed point
+		net.save("D:/work/FANN-2.2.0-Source/bin/xor_float.net");
+		unsigned int decimal_point = net.save_to_fixed("D:/work/FANN-2.2.0-Source/bin/xor_fixed.net");
+		data.save_train_to_fixed("D:/work/FANN-2.2.0-Source/bin/xor_fixed.data", decimal_point);
+
+		cout << endl << "XOR test completed." << endl;
+	}
+}
+
+/* Startup function. Syncronizes C and C++ output, calls the test function
+and reports any exceptions */
+int main(int argc, char **argv)
+{
+	try
+	{
+		std::ios::sync_with_stdio(); // Syncronize cout and printf output
+		xor_test();
+	}
+	catch (...)
+	{
+		cerr << endl << "Abnormal exception." << endl;
+	}
+	return 0;
+}
