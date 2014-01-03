@@ -37,7 +37,7 @@ class StrategyManager
 
 	void	addStrategies();
 	void	setStrategy();
-	void	readResults();
+ 	void	readResults();
 	void	writeResults();
 
 	const	int					getScore(BWAPI::Player * player) const;

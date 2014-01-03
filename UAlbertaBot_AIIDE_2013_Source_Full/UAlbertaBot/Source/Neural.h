@@ -2,8 +2,19 @@
 
 #include "Common.h"
 #include "BWTA.h"
+#include "base/BuildOrderQueue.h"
+#include "InformationManager.h"
+#include "base/WorkerManager.h"
+#include "base/StarcraftBuildOrderSearchManager.h"
 #include <sys/stat.h>
 #include <cstdlib>
+#include "floatfann.h"
+#include "fann_cpp.h"
+#include <ios>
+#include <iostream>
+#include <iomanip>
+#include <bitset>
+
 
 #include "..\..\StarcraftBuildOrderSearch\Source\starcraftsearch\StarcraftData.hpp"
 
@@ -16,38 +27,62 @@ class Neural
 	Neural();
 	~Neural() {}
 
-	std::string					readNetwork;
-	std::string					writeNetwork;
+	std::string					readDir;
+	std::string					writeDir;
 
 	BWAPI::Race					selfRace;
 	BWAPI::Race					enemyRace;
 
-	bool						firstAttackSent;
+	std::vector<std::vector<float> >	actions;
+	std::vector<std::vector<float> >	states;
+	std::vector<std::vector<float> >	inputs;
+	std::vector<std::vector<float> >	outputs;
 
-	void	addStrategies();
-	void	setStrategy();
-	void	readResults();
-	void	writeResults();
+	FANN::neural_net net;
+
+	const float learning_rate = 0.7f;
+	const unsigned int num_layers = 3;
+
+	const unsigned int num_input = 120;
+
+	const unsigned int num_hidden = 3;
+	const unsigned int num_output = 1;
+	const float desired_error = 0.001f;
+
+	const unsigned int max_iterations = 300000;
+
+	const unsigned int iterations_between_reports = 1000;
+
+	void 	(FANN_API *createTrainDataset)(unsigned int, unsigned int, unsigned int, fann_type *, fann_type *);
+
+	FANN::neural_net net;
+
+	void	readNetwork();
+	void	writeNetwork();
 
 	const	int					getScore(BWAPI::Player * player) const;
-	const	double				getUCBValue(const size_t & strategy) const;
+
+	void	setActions();
+	void	addActions();
+
+	int print_callback(FANN::neural_net &net, FANN::training_data &train,
+		unsigned int max_epochs, unsigned int epochs_between_reports,
+		float desired_error, unsigned int epochs, void *user_data);
+
+	void	strategy_test();
+
+	void	createNetwork();
 
 public:
 
 	static	Neural &	Instance();
 
-	void				onEnd();
+	void				onEnd(const bool);
 
 	std::vector<int> &		getActions();
 
-	const	bool		regroup(int numInRadius);
-	const	bool		doAttack(const std::set<BWAPI::Unit *> & freeUnits);
-	const	int			defendWithWorkers();
-	const	bool		rushDetected();
-
-
-	const	int					getCurrentStrategy();
-
 	const	MetaPairVector		getBuildOrderGoal();
-	const	std::string			getOpeningBook() const;
+
+
+
 };
