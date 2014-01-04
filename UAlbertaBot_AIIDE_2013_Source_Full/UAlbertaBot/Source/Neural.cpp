@@ -99,13 +99,35 @@ void Neural::writeNetwork()
 
 void Neural::onEnd(const bool isWinner)
 {
+	// if the game ended before the tournament time limit
+	if (BWAPI::Broodwar->getFrameCount() < Options::Tournament::GAME_END_FRAME)
+	{
+		if (isWinner)
+		{
+			//	results[getCurrentStrategy()].first = results[getCurrentStrategy()].first + 1;
+
+		}
+		else
+		{
+			//results[getCurrentStrategy()].second = results[getCurrentStrategy()].second + 1;
+		}
+	}
+	// otherwise game timed out so use in-game score
+	else
+	{
+		if (getScore(BWAPI::Broodwar->self()) > getScore(BWAPI::Broodwar->enemy()))
+		{
+			//results[getCurrentStrategy()].first = results[getCurrentStrategy()].first + 1;
+		}
+		else
+		{
+			//	results[getCurrentStrategy()].second = results[getCurrentStrategy()].second + 1;
+		}
+
+
 	FANN::training_data data;
 
 
-
-	//		cout << "Max Epochs " << setw(8) << max_iterations << ". "
-	//		<< "Desired Error: " << left << desired_error << right << endl;
-	//			net.set_callback(print_callback, NULL);
 	data.set_train_data(3,num_input,(float**)&inputs[0],
 									num_output,(float**)&outputs[0]);
 	// Initialize and train the network with the data
@@ -113,54 +135,7 @@ void Neural::onEnd(const bool isWinner)
 	net.train_on_data(data, max_iterations,
 		iterations_between_reports, desired_error);
 
-	cout << endl << "Testing network." << endl;
-
-	for (unsigned int i = 0; i < data.length_train_data(); ++i)
-	{
-		// Run the network on the test data
-		fann_type *calc_out = net.run(data.get_input()[i]);
-
-		//		cout << "XOR test (" << showpos << data.get_input()[i][0] << ", "
-		//		<< data.get_input()[i][1] << ") -> " << *calc_out
-		//	<< ", should be " << data.get_output()[i][0] << ", "
-		//<< "difference = " << noshowpos
-		//<< fann_abs(*calc_out - data.get_output()[i][0]) << endl;
-	}
-
-	//		cout << endl << "Saving network." << endl;
-
-	// Save the network in floating point and fixed point
-
-	//cout << endl << "XOR test completed." << endl;
-
-
-		// if the game ended before the tournament time limit
-		if (BWAPI::Broodwar->getFrameCount() < Options::Tournament::GAME_END_FRAME)
-		{
-			if (isWinner)
-			{
-			//	results[getCurrentStrategy()].first = results[getCurrentStrategy()].first + 1;
-
-			}
-			else
-			{
-				//results[getCurrentStrategy()].second = results[getCurrentStrategy()].second + 1;
-			}
-		}
-		// otherwise game timed out so use in-game score
-		else
-		{
-			if (getScore(BWAPI::Broodwar->self()) > getScore(BWAPI::Broodwar->enemy()))
-			{
-				//results[getCurrentStrategy()].first = results[getCurrentStrategy()].first + 1;
-			}
-			else
-			{
-			//	results[getCurrentStrategy()].second = results[getCurrentStrategy()].second + 1;
-			}
-
-
-		net.save(writeDir + BWAPI::Broodwar->enemy()->getName() + ".net");
+	net.save(writeDir + BWAPI::Broodwar->enemy()->getName() + ".net");
 	}
 }
 
@@ -233,55 +208,33 @@ const int Neural::getScore(BWAPI::Player * player) const
 
 void Neural::setActions()
 {
-	// if we are using file io to determine strategy, do so
-	if (Options::Modules::USING_STRATEGY_IO)
-	{
-		double bestUCB = -1;
-		int bestStrategyIndex = 0;
+	
 
-		// UCB requires us to try everything once before using the formula
-		for (size_t strategyIndex(0); strategyIndex<usableStrategies.size(); ++strategyIndex)
-		{
-			int sum = results[usableStrategies[strategyIndex]].first + results[usableStrategies[strategyIndex]].second;
 
-			if (sum == 0)
-			{
-				currentStrategy = usableStrategies[strategyIndex];
-				return;
-			}
-		}
 
-		// if we have tried everything once, set the maximizing ucb value
-		for (size_t strategyIndex(0); strategyIndex<usableStrategies.size(); ++strategyIndex)
-		{
-			double ucb = getUCBValue(usableStrategies[strategyIndex]);
 
-			if (ucb > bestUCB)
-			{
-				bestUCB = ucb;
-				bestStrategyIndex = strategyIndex;
-			}
-		}
 
-		currentStrategy = usableStrategies[bestStrategyIndex];
-	}
-	else
-	{
-		// otherwise return a random strategy
-
-		std::string enemyName(BWAPI::Broodwar->enemy()->getName());
-
-		if (enemyName.compare("Skynet") == 0)
-		{
-			currentStrategy = ProtossDarkTemplar;
-		}
-		else
-		{
-			currentStrategy = ProtossZealotRush;
-		}
-	}
 
 }
+
+void Neural::selectBestAction(){
+
+	fann_type *best_out;
+	std::vector<float> 	actions(num_actions);
+	std::vector<float>	states(num_states);
+	std::vector<float>	input;
+	for (int i; i < num_actions;++i){
+
+		input.insert(actions.end(), states.begin(),
+			states.end());
+		fann_type *calc_out = net.run(&input[0]);
+		if (best_out[0] < calc_out[0]){
+			best_out[0] = calc_out[0];
+			bestinput = input;
+		}
+	}
+}
+
 
 void Neural::addActions()
 {

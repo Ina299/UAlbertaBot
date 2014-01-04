@@ -8,6 +8,7 @@
 #include "base/StarcraftBuildOrderSearchManager.h"
 #include <sys/stat.h>
 #include <cstdlib>
+#include <boost/foreach.hpp>
 
 #include "..\..\StarcraftBuildOrderSearch\Source\starcraftsearch\StarcraftData.hpp"
 

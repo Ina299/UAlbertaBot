@@ -33,18 +33,19 @@ class Neural
 	BWAPI::Race					selfRace;
 	BWAPI::Race					enemyRace;
 
-	std::vector<std::vector<float> >	actions;
-	std::vector<std::vector<float> >	states;
+	std::vector<float> 	bestinput;
+
 	std::vector<std::vector<float> >	inputs;
 	std::vector<std::vector<float> >	outputs;
 
 	FANN::neural_net net;
-	const unsigned int x;
+	const int num_actions=10;
+	const int num_states=110;
 
 	const float learning_rate = 0.7f;
 	const unsigned int num_layers = 3;
 
-	const unsigned int num_input = 120;
+	const unsigned int num_input = num_actions+num_states;
 
 	const unsigned int num_hidden = 3;
 	const unsigned int num_output = 1;
@@ -65,6 +66,7 @@ class Neural
 
 	void	setActions();
 	void	addActions();
+	void	selectBestAction();
 
 	int print_callback(FANN::neural_net &net, FANN::training_data &train,
 		unsigned int max_epochs, unsigned int epochs_between_reports,
