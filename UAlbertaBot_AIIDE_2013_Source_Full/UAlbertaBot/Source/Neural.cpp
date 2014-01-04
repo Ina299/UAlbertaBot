@@ -106,13 +106,8 @@ void Neural::onEnd(const bool isWinner)
 	//		cout << "Max Epochs " << setw(8) << max_iterations << ". "
 	//		<< "Desired Error: " << left << desired_error << right << endl;
 	//			net.set_callback(print_callback, NULL);
-	data.create_train_from_callback(
-		100,
-		120,
-		1,
-		//void 	(FANN_API *user_function)(unsigned int, unsigned int, unsigned int, fann_type *, fann_type *)
-		createTrainDataset(100,120,1,inputs,outputs)
-		);
+	data.set_train_data(3,num_input,(float**)&inputs[0],
+									num_output,(float**)&outputs[0]);
 	// Initialize and train the network with the data
 	net.init_weights(data);
 	net.train_on_data(data, max_iterations,

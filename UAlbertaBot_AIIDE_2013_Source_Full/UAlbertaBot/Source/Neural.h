@@ -39,6 +39,7 @@ class Neural
 	std::vector<std::vector<float> >	outputs;
 
 	FANN::neural_net net;
+	const unsigned int x;
 
 	const float learning_rate = 0.7f;
 	const unsigned int num_layers = 3;
