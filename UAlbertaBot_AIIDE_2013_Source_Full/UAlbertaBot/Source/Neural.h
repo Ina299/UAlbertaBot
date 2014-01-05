@@ -83,10 +83,9 @@ public:
 
 	void				onEnd(const bool);
 
-	std::vector<int> &		getActions();
+	std::vector<float> &		getActions();
 
 	const	MetaPairVector		getBuildOrderGoal();
-
 
 
 };

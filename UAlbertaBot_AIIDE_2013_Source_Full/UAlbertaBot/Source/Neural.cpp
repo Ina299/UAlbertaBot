@@ -29,7 +29,7 @@ Neural & Neural::Instance()
 }
 
 // read weight of Network
-
+/*
 void Neural::readNetwork()
 {
 	// read in the name of the read and write directories from settings file
@@ -63,7 +63,7 @@ void Neural::readNetwork()
 		std::ifstream f_in(readFile.c_str());
 		std::string line;
 		getline(f_in, line);
-		/*
+		
 		results[ProtossZealotRush].first = atoi(line.c_str());
 		getline(f_in, line);
 		results[ProtossZealotRush].second = atoi(line.c_str());
@@ -75,13 +75,14 @@ void Neural::readNetwork()
 		results[ProtossDragoons].first = atoi(line.c_str());
 		getline(f_in, line);
 		results[ProtossDragoons].second = atoi(line.c_str());
-		*/
+		
 		f_in.close();
 	}
+		*/
 
 //	BWAPI::Broodwar->printf("Results (%s): (%d %d) (%d %d) (%d %d)", BWAPI::Broodwar->enemy()->getName().c_str(),
 	//	results[0].first, results[0].second, results[1].first, results[1].second, results[2].first, results[2].second);
-}
+
 /*
 void Neural::writeNetwork()
 {
@@ -238,7 +239,7 @@ void Neural::selectBestAction(){
 		}
 	}
 }
-
+/*
 
 void Neural::addActions()
 {
@@ -299,3 +300,4 @@ void Neural::addActions()
 		readResults();
 	}
 }
+*/
