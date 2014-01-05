@@ -14,7 +14,8 @@
 #include <iostream>
 #include <iomanip>
 #include <bitset>
-
+#include <boost/foreach.hpp>
+#include <math.h>
 
 #include "..\..\StarcraftBuildOrderSearch\Source\starcraftsearch\StarcraftData.hpp"
 

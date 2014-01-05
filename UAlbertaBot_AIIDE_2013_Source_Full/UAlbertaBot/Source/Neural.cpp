@@ -220,17 +220,21 @@ void Neural::setActions()
 void Neural::selectBestAction(){
 
 	fann_type *best_out;
-	std::vector<float> 	actions(num_actions);
-	std::vector<float>	states(num_states);
+	std::vector<float> 	actions(num_actions,0.0);
+	std::vector<float>	states(num_states,0.0);
 	std::vector<float>	input;
-	for (int i; i < num_actions;++i){
-
-		input.insert(actions.end(), states.begin(),
-			states.end());
-		fann_type *calc_out = net.run(&input[0]);
-		if (best_out[0] < calc_out[0]){
-			best_out[0] = calc_out[0];
-			bestinput = input;
+	//2‚Ìnum_actionsæ‚É‚Â‚¢‚Ä‘“–‚è
+	for (int i; i < (int)pow(2.0,num_actions);++i){
+		for (int j; j < num_actions; ++i){
+			int flag = (i >> j) % 2;
+			flag == 1 ? actions[j] = 1.0 : actions[j] = 0.0;
+		}
+			input.insert(actions.end(), states.begin(),
+				states.end());
+			fann_type *calc_out = net.run(&input[0]);
+			if (best_out[0] < calc_out[0]){
+				best_out[0] = calc_out[0];
+				bestinput = input;
 		}
 	}
 }
