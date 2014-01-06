@@ -16,6 +16,7 @@
 #include <bitset>
 #include <boost/foreach.hpp>
 #include <math.h>
+#include <time.h>
 
 #include "..\..\StarcraftBuildOrderSearch\Source\starcraftsearch\StarcraftData.hpp"
 
@@ -40,6 +41,7 @@ class Neural
 	std::vector<std::vector<float> >	outputs;
 
 	FANN::neural_net net;
+	int count;
 	const int num_actions=10;
 	const int num_states=110;
 
@@ -60,13 +62,10 @@ class Neural
 
 	FANN::neural_net net;
 
-	void	readNetwork();
-	void	writeNetwork();
-
 	const	int					getScore(BWAPI::Player * player) const;
 
 	void	setActions();
-	void	addActions();
+
 	void	selectBestAction();
 
 	int print_callback(FANN::neural_net &net, FANN::training_data &train,
@@ -77,15 +76,21 @@ class Neural
 
 	void	createNetwork();
 
+	bool	neuralUpdateFrame();
+
+	void	setState(std::set<BWAPI::Unit *> & unitsToAssign);
+
+	std::vector<float>	& getState();
+
 public:
 
 	static	Neural &	Instance();
 
 	void				onEnd(const bool);
 
-	std::vector<float> &		getActions();
+	void				update(std::set<BWAPI::Unit *> unitsToAssign);
 
-	const	MetaPairVector		getBuildOrderGoal();
+	std::vector<float> &		getActions();
 
 
 };
