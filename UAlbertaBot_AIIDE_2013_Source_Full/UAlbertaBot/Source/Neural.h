@@ -15,8 +15,10 @@
 #include <iomanip>
 #include <bitset>
 #include <boost/foreach.hpp>
+#include <boost/tuple/tuple.hpp>
 #include <math.h>
 #include <time.h>
+#include <map>
 
 #include "..\..\StarcraftBuildOrderSearch\Source\starcraftsearch\StarcraftData.hpp"
 
@@ -40,10 +42,15 @@ class Neural
 	std::vector<std::vector<float> >	inputs;
 	std::vector<std::vector<float> >	outputs;
 
+	std::vector<float>	states;
+
 	FANN::neural_net net;
+
 	int count;
+
 	const int num_actions=10;
-	const int num_states=110;
+	int num_states;
+	int const unit_count = 2;
 
 	const float learning_rate = 0.7f;
 	const unsigned int num_layers = 3;
@@ -78,9 +85,11 @@ class Neural
 
 	bool	neuralUpdateFrame();
 
-	void	setState(std::set<BWAPI::Unit *> & unitsToAssign);
-
+	void	setStates();
+	//std::set<BWAPI::Unit *> & unitsToAssign
 	std::vector<float>	& getState();
+
+	int		setNumState();
 
 public:
 
@@ -88,7 +97,7 @@ public:
 
 	void				onEnd(const bool);
 
-	void				update(std::set<BWAPI::Unit *> unitsToAssign);
+	void				update();
 
 	std::vector<float> &		getActions();
 
