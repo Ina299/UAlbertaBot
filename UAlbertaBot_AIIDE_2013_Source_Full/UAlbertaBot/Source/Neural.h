@@ -51,12 +51,10 @@ class Neural
 	const int num_actions=10;
 	int num_states;
 	int const unit_count = 2;
-
+	//ここからニューラルネットのパラメータ
 	const float learning_rate = 0.7f;
 	const unsigned int num_layers = 3;
-
-	const unsigned int num_input = num_actions+num_states;
-
+	unsigned int num_input;
 	const unsigned int num_hidden = 3;
 	const unsigned int num_output = 1;
 	const float desired_error = 0.001f;
@@ -65,7 +63,7 @@ class Neural
 
 	const unsigned int iterations_between_reports = 1000;
 
-	void 	(FANN_API *createTrainDataset)(unsigned int, unsigned int, unsigned int, fann_type *, fann_type *);
+//	void 	(FANN_API *createTrainDataset)(unsigned int, unsigned int, unsigned int, fann_type *, fann_type *);
 
 	FANN::neural_net net;
 

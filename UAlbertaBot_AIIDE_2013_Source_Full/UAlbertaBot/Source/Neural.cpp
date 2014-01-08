@@ -11,7 +11,9 @@ Neural::Neural()
 	//2i”‚Å•\‚·‚½‚ß‚É2”{‚·‚éB‚à‚µ‚³‚ç‚É‘‚â‚µ‚½‚¯‚ê‚Î3,4,5”{‚·‚ê‚Î‚¢‚¢
 	//+2‚Íí‘°
 	num_states = setNumState()*unit_count + 2;
+	num_input = num_actions + num_states;
 	setStates();
+	setActions();
 	createNetwork();
 }
 
