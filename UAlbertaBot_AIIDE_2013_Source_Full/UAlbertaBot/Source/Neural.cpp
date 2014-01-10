@@ -8,9 +8,9 @@ Neural::Neural()
 , enemyRace(BWAPI::Broodwar->enemy()->getRace())
 {
 	count = 0;
-	//2進数で表すために2倍する。もしさらに増やしたければ3,4,5倍すればいい
+	//2進数で表すために2倍,敵ユニット味方ユニットで区別する
 	//+2は種族
-	num_states = setNumState()*unit_count + 2;
+	num_states = setNumState()*unit_count*2 + 2;
 	num_input = num_actions + num_states;
 	setStates();
 	setActions();
@@ -111,7 +111,6 @@ const int Neural::getScore(BWAPI::Player * player) const
 void Neural::setActions()
 {
 	count++;
-	selectBestAction();
 	srand((unsigned int)time(NULL));
 	//イプシロン=0.2でランダム化
 	if (rand()%10>8){
@@ -121,6 +120,7 @@ void Neural::setActions()
 		}
 	}
 	else{
+		selectBestAction();
 		inputs[count] = bestinput;
 	}
 
@@ -167,43 +167,71 @@ bool Neural::neuralUpdateFrame()
 
 void Neural::setStates(){
 	//全てのユニットについてRegionの数だけRegionIDを蓄積
-	std::map<int,int>	region_num;
+	std::map<int, int>	own_region_num;
+	std::map<int, int>	opponent_region_num;
 	typedef std::pair<int, int> pair_t;
 	BOOST_FOREACH(BWAPI::Region * currentRegion, BWAPI::Broodwar->getAllRegions()){
-//		region_num[currentRegion->BWAPI::Region::getRegionGroupID()]=0;
-		region_num.insert(std::map<int, int>::value_type(currentRegion->BWAPI::Region::getRegionGroupID(), 0));
+		//		region_num[currentRegion->BWAPI::Region::getRegionGroupID()]=0;
+		own_region_num.insert(std::map<int, int>::value_type(currentRegion->BWAPI::Region::getRegionGroupID(), 0));
+		opponent_region_num.insert(std::map<int, int>::value_type(currentRegion->BWAPI::Region::getRegionGroupID(), 0));
 	}
 	//全てのユニットのRegion情報を足す
-	BOOST_FOREACH(BWAPI::Unit * currentUnit, BWAPI::Broodwar->getAllUnits()){
-		region_num[currentUnit->BWAPI::Unit::getRegion()->BWAPI::Region::getRegionGroupID()] ++;
+	BOOST_FOREACH(BWAPI::Unit * currentUnit, BWAPI::Broodwar->enemy()->getUnits()){
+		opponent_region_num[currentUnit->BWAPI::Unit::getRegion()->BWAPI::Region::getRegionGroupID()] ++;
+	}
+	BOOST_FOREACH(BWAPI::Unit * currentUnit, BWAPI::Broodwar->self()->getUnits()){
+		own_region_num[currentUnit->BWAPI::Unit::getRegion()->BWAPI::Region::getRegionGroupID()] ++;
 	}
 	//各Regionごとに味方ユニット数が1つ、2つ、3つ、4つ以上で場合わけ
 	std::vector<float>	temp(num_states, 0.0);
-	int count_temp=0 ;
+	int count_temp = 0;
 	int value;
 	//mapのforeachをまわしてregionごとのUnit数をvectorに変換
-	BOOST_FOREACH(boost::tie(boost::tuples::ignore, value), region_num){
-		if(value == 0){
+	BOOST_FOREACH(boost::tie(boost::tuples::ignore, value), own_region_num){
+		if (value == 0){
 			temp[count_temp] = 0;
-			temp[count_temp+1] = 0;
+			temp[count_temp + 1] = 0;
 		}
-		else if(value == 1){
+		else if (value == 1){
 			temp[count_temp] = 0;
-			temp[count_temp+ 1] = 1;
+			temp[count_temp + 1] = 1;
 
 		}
-		else if(value == 2){
+		else if (value == 2){
 			temp[count_temp] = 1;
-			temp[count_temp+ 1] = 0;
+			temp[count_temp + 1] = 0;
 
 		}
-		else if(value > 2){
+		else if (value > 2){
 			temp[count_temp] = 1;
 			temp[count_temp + 1] = 1;
 		}
 
-			count_temp+=2;
+		count_temp += 2;
 	}
+	BOOST_FOREACH(boost::tie(boost::tuples::ignore, value), opponent_region_num){
+		if (value == 0){
+			temp[count_temp] = 0;
+			temp[count_temp + 1] = 0;
+		}
+		else if (value == 1){
+			temp[count_temp] = 0;
+			temp[count_temp + 1] = 1;
+
+		}
+		else if (value == 2){
+			temp[count_temp] = 1;
+			temp[count_temp + 1] = 0;
+
+		}
+		else if (value > 2){
+			temp[count_temp] = 1;
+			temp[count_temp + 1] = 1;
+		}
+
+		count_temp += 2;
+	}
+
 	if (enemyRace == BWAPI::Races::Protoss)
 	{
 		temp[count_temp] = 0;
@@ -221,7 +249,7 @@ void Neural::setStates(){
 	}
 	else
 	{
-		BWAPI::Broodwar->printf("Enemy Race Unknown");
+//		BWAPI::Broodwar->printf("Enemy Race Unknown");
 		temp[count_temp] = 1;
 		temp[count_temp + 1] = 1;
 	}
@@ -232,6 +260,7 @@ void Neural::setStates(){
 }
 
 int Neural::setNumState(){
+	//Regionの数を返す
 	int region_count = 0;
 	BOOST_FOREACH(BWAPI::Region * currentRegion, BWAPI::Broodwar->getAllRegions()){
 		region_count++;
