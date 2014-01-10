@@ -13,7 +13,6 @@
 #include <ios>
 #include <iostream>
 #include <iomanip>
-#include <bitset>
 #include <boost/foreach.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <math.h>
@@ -21,6 +20,8 @@
 #include <map>
 
 #include "..\..\StarcraftBuildOrderSearch\Source\starcraftsearch\StarcraftData.hpp"
+
+//#include <bitset>
 
 typedef std::pair<int, int> IntPair;
 typedef std::pair<MetaType, UnitCountType> MetaPair;

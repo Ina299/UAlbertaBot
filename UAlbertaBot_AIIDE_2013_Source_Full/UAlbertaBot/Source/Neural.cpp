@@ -29,13 +29,15 @@ void Neural::onEnd(const bool isWinner)
 {
 	// if the game ended before the tournament time limit
 	// 報酬によってoutputsを更新する
+	std::vector<float>  v(1,0.0);
+	outputs.push_back(v);
 	if (BWAPI::Broodwar->getFrameCount() < Options::Tournament::GAME_END_FRAME)
 	{
 		if (isWinner)
 		{
 			//報酬の設定
-			for (float i = 0; i < count; ++i){
-				outputs[i][0] = outputs[i][0] + (i/(float)count);
+			for (float i = count; i > 0; --i){
+				outputs[i][0] = outputs[i+1][0] + (i/(float)count);
 			}
 		}
 		else
@@ -155,9 +157,7 @@ void Neural::update(){
 	if (neuralUpdateFrame()){
 		setStates();
 		setActions();
-
 	}
-
 }
 
 bool Neural::neuralUpdateFrame()
@@ -169,7 +169,6 @@ void Neural::setStates(){
 	//全てのユニットについてRegionの数だけRegionIDを蓄積
 	std::map<int, int>	own_region_num;
 	std::map<int, int>	opponent_region_num;
-	typedef std::pair<int, int> pair_t;
 	BOOST_FOREACH(BWAPI::Region * currentRegion, BWAPI::Broodwar->getAllRegions()){
 		//		region_num[currentRegion->BWAPI::Region::getRegionGroupID()]=0;
 		own_region_num.insert(std::map<int, int>::value_type(currentRegion->BWAPI::Region::getRegionGroupID(), 0));
