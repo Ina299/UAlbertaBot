@@ -29,21 +29,24 @@ void Neural::onEnd(const bool isWinner)
 {
 	// if the game ended before the tournament time limit
 	// •ñV‚É‚æ‚Á‚Äoutputs‚ğXV‚·‚é
-	std::vector<float>  v(1,0.0);
-	outputs.push_back(v);
 	if (BWAPI::Broodwar->getFrameCount() < Options::Tournament::GAME_END_FRAME)
 	{
 		if (isWinner)
 		{
 			//•ñV‚Ìİ’è
-			for (float i = count; i > 0; --i){
-				outputs[i][0] = outputs[i+1][0] + (i/(float)count);
+			outputs[count][0] = 1.0;
+			for (float i = count-1; i > 0; --i){
+				outputs[i][0] = outputs[i][0]
+					+alpha*(1.0+gamma*outputs[i+1][0]-outputs[i][0]);
 			}
 		}
 		else
 		{
-			for (float i = 0; i < count; ++i){
-				outputs[i][0] = outputs[i][0] - (i/(float)count);
+			//•ñV‚Ìİ’è
+			outputs[count][0] = -1.0;
+			for (float i = count - 1; i > 0; --i){
+				outputs[i][0] = outputs[i][0]
+					+ alpha*(-1.0 + gamma*outputs[i + 1][0] - outputs[i][0]);
 			}
 		}
 	}
@@ -53,15 +56,18 @@ void Neural::onEnd(const bool isWinner)
 	{
 		if (getScore(BWAPI::Broodwar->self()) > getScore(BWAPI::Broodwar->enemy()))
 		{
-			//•ñV‚Ìİ’è
-			for (float i = 0; i < count; ++i){
-				outputs[i][0] = outputs[i][0] + (i / (float)count);
+			outputs[count][0] = 1.0;
+			for (float i = count - 1; i > 0; --i){
+				outputs[i][0] = outputs[i][0]
+					+ alpha*(1.0 + gamma*outputs[i + 1][0] - outputs[i][0]);
 			}
 		}
 		else
 		{
-			for (float i = 0; i < count; ++i){
-				outputs[i][0] = outputs[i][0] - (i / (float)count);
+			outputs[count][0] = -1.0;
+			for (float i = count - 1; i > 0; --i){
+				outputs[i][0] = outputs[i][0]
+					+ alpha*(-1.0 + gamma*outputs[i + 1][0] - outputs[i][0]);
 			}
 		}
 

@@ -51,7 +51,11 @@ class Neural
 
 	const int num_actions=10;
 	int num_states;
-	int const unit_count = 2;
+	const int unit_count = 2;
+	//ここから強化学習のパラメータ
+	const float gamma = 0.95;
+	const float alpha = 0.7;
+
 	//ここからニューラルネットのパラメータ
 	const float learning_rate = 0.7f;
 	const unsigned int num_layers = 3;
