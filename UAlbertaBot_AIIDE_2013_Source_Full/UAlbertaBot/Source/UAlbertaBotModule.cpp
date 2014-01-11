@@ -25,7 +25,7 @@ UAlbertaBotModule::~UAlbertaBotModule() {}
 void UAlbertaBotModule::onStart()
 {
 	BWAPI::Broodwar->setLocalSpeed(0);
-	//BWAPI::Broodwar->setFrameSkip(240);
+	BWAPI::Broodwar->setFrameSkip(240);
 
     SparCraft::init();
 
@@ -60,7 +60,7 @@ void UAlbertaBotModule::onEnd(bool isWinner)
 	if (Options::Modules::USING_GAMECOMMANDER)
 	{
 		StrategyManager::Instance().onEnd(isWinner);
-
+		Neural::Instance().onEnd(isWinner);
 		std::stringstream result;
 		std::string win = isWinner ? "win" : "lose";
 
