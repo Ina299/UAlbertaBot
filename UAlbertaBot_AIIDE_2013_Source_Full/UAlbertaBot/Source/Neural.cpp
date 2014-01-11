@@ -120,19 +120,26 @@ void Neural::setActions()
 {
 	count++;
 	srand((unsigned int)time(NULL));
-	//イプシロン=0.2でランダム化
+	//イプシロン=0.1でランダム化
 	if (rand()%10>8){
-		for (int j; j < num_actions; ++j){
-			int flag = ((rand()%(int)pow(2.0, num_actions)) >> j) % 2;
-			flag == 1 ? inputs[count][j] = 1.0 : inputs[count][j] = 0.0;
-		}
+		std::vector<float> 	actions(num_actions, 0.0);
+		std::vector<float>	states = getState();
+		std::vector<float>	input;
+		//2のnum_actions乗について総当り
+			for (int j; j < num_actions; ++j){
+				int flag = ((rand() % (int)pow(2.0, num_actions)) >> j) % 2;
+				flag == 1 ? actions[j] = 1.0 : actions[j] = 0.0;
+			}
+			input.insert(actions.end(), states.begin(),
+				states.end());
+			fann_type *calc_out = net.run(&input[0]);
+			outputs[count][0] = calc_out[0];
+			inputs[count] = input;
 	}
 	else{
 		selectBestAction();
 		inputs[count] = bestinput;
 	}
-
-
 }
 
 void Neural::selectBestAction(){
