@@ -47,6 +47,10 @@ void GameCommander::update()
 	InformationManager::Instance().update();
 	timerManager.stopTimer(TimerManager::InformationManager);
 
+	timerManager.startTimer(TimerManager::Neural);
+	Neural::Instance().update();
+	timerManager.stopTimer(TimerManager::Neural);
+
 	timerManager.startTimer(TimerManager::MapGrid);
 	MapGrid::Instance().update();
 	timerManager.stopTimer(TimerManager::MapGrid);

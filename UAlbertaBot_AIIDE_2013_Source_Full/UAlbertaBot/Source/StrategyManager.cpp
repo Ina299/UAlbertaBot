@@ -72,11 +72,12 @@ void StrategyManager::addStrategies()
 		results = std::vector<IntPair>(NumZergStrategies);
 		usableStrategies.push_back(ZergZerglingRush);
 	}
-
+	/*
 	if (Options::Modules::USING_STRATEGY_IO)
 	{
 		readResults();
 	}
+	*/
 }
 
 void StrategyManager::readResults()
@@ -276,35 +277,39 @@ const std::string StrategyManager::getOpeningBook() const
 // this function can only be called if we have no fighters to defend with
 const int StrategyManager::defendWithWorkers()
 {
-	if (!Options::Micro::WORKER_DEFENSE)
-	{
-		return false;
-	}
-
-	// our home nexus position
-	BWAPI::Position homePosition = BWTA::getStartLocation(BWAPI::Broodwar->self())->getPosition();;
-
-	// enemy units near our workers
-	int enemyUnitsNearWorkers = 0;
-
-	// defense radius of nexus
-	int defenseRadius = 300;
-
-	// fill the set with the types of units we're concerned about
-	BOOST_FOREACH (BWAPI::Unit * unit, BWAPI::Broodwar->enemy()->getUnits())
-	{
-		// if it's a zergling or a worker we want to defend
-		if (unit->getType() == BWAPI::UnitTypes::Zerg_Zergling)
+	std::vector<float> & act = Neural::getActions();
+	if (act[1] == 1.0){
+		if (!Options::Micro::WORKER_DEFENSE)
 		{
-			if (unit->getDistance(homePosition) < defenseRadius)
+			return false;
+		}
+
+		// our home nexus position
+		BWAPI::Position homePosition = BWTA::getStartLocation(BWAPI::Broodwar->self())->getPosition();;
+
+		// enemy units near our workers
+		int enemyUnitsNearWorkers = 0;
+
+		// defense radius of nexus
+		int defenseRadius = 300;
+
+		// fill the set with the types of units we're concerned about
+		BOOST_FOREACH(BWAPI::Unit * unit, BWAPI::Broodwar->enemy()->getUnits())
+		{
+			// if it's a zergling or a worker we want to defend
+			if (unit->getType() == BWAPI::UnitTypes::Zerg_Zergling)
 			{
-				enemyUnitsNearWorkers++;
+				if (unit->getDistance(homePosition) < defenseRadius)
+				{
+					enemyUnitsNearWorkers++;
+				}
 			}
 		}
-	}
 
-	// if there are enemy units near our workers, we want to defend
-	return enemyUnitsNearWorkers;
+		// if there are enemy units near our workers, we want to defend
+		return enemyUnitsNearWorkers;
+	}
+	return false;
 }
 
 // called by combat commander to determine whether or not to send an attack force
@@ -312,19 +317,25 @@ const int StrategyManager::defendWithWorkers()
 // *Ina Important Function* see combat commander too
 const bool StrategyManager::doAttack(const std::set<BWAPI::Unit *> & freeUnits)
 {
-	int ourForceSize = (int)freeUnits.size();
+	std::vector<float> & act = Neural::getActions();
+	if (act[0] == 1.0){
+		int ourForceSize = (int)freeUnits.size();
 
-	int numUnitsNeededForAttack = 1;
+		int numUnitsNeededForAttack = 1;
 
-	bool doAttack  = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Protoss_Dark_Templar) >= 1
-					|| ourForceSize >= numUnitsNeededForAttack;
+		bool doAttack = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Protoss_Dark_Templar) >= 1
+			|| ourForceSize >= numUnitsNeededForAttack;
 
-	if (doAttack)
-	{
-		firstAttackSent = true;
+		if (doAttack)
+		{
+			firstAttackSent = true;
+		}
+
+		return doAttack || firstAttackSent;
 	}
-
-	return doAttack || firstAttackSent;
+	else{
+			return false;
+}
 }
 
 const bool StrategyManager::expandProtossZealotRush() const
@@ -658,5 +669,12 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
 
  const int StrategyManager::getCurrentStrategy()
  {
+	 std::vector<float> & act = Neural::getActions();
+	 if (act[3] == 1.0){
+		 currentStrategy = ProtossZealotRush;
+	 }
+	 else{
+		 currentStrategy = ProtossDarkTemplar;
+	 }
 	 return currentStrategy;
  }

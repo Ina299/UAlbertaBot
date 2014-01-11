@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <cstdlib>
 #include <boost/foreach.hpp>
+#include <Neural.h>
 
 #include "..\..\StarcraftBuildOrderSearch\Source\starcraftsearch\StarcraftData.hpp"
 
