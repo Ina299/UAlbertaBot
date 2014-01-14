@@ -11,6 +11,9 @@ void GameCommander::update()
 {
 	timerManager.startTimer(TimerManager::All);
 	
+	timerManager.startTimer(TimerManager::Neural);
+	Neural::Instance().update();
+	timerManager.stopTimer(TimerManager::Neural);
 
 	// economy and base managers
 	timerManager.startTimer(TimerManager::Worker);
@@ -46,10 +49,6 @@ void GameCommander::update()
 	timerManager.startTimer(TimerManager::InformationManager);
 	InformationManager::Instance().update();
 	timerManager.stopTimer(TimerManager::InformationManager);
-
-	timerManager.startTimer(TimerManager::Neural);
-	Neural::Instance().update();
-	timerManager.stopTimer(TimerManager::Neural);
 
 	timerManager.startTimer(TimerManager::MapGrid);
 	MapGrid::Instance().update();

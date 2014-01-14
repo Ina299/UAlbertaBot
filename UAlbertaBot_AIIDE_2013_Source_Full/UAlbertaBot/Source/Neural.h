@@ -40,16 +40,16 @@ class Neural
 
 	std::vector<float> 	bestinput;
 
-	static std::vector<std::vector<float> >	inputs;
-	static std::vector<std::vector<float> >	outputs;
+	std::vector<std::vector<float> >	inputs;
+	std::vector<std::vector<float> >	outputs;
 
 	std::vector<float>	states;
 
-	static	FANN::neural_net net;
+	FANN::neural_net net;
 
 	int count;
 
-	const int num_actions=6;
+	const int num_actions=5;
 	int num_states;
 	const int unit_count = 2;
 	//ここから強化学習のパラメータ

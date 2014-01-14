@@ -277,7 +277,7 @@ const std::string StrategyManager::getOpeningBook() const
 // this function can only be called if we have no fighters to defend with
 const int StrategyManager::defendWithWorkers()
 {
-	std::vector<float> & act = Neural::getActions();
+	std::vector<float> & act = Neural::Instance().getActions();
 	if (act[1] == 1.0){
 		if (!Options::Micro::WORKER_DEFENSE)
 		{
@@ -317,7 +317,7 @@ const int StrategyManager::defendWithWorkers()
 // *Ina Important Function* see combat commander too
 const bool StrategyManager::doAttack(const std::set<BWAPI::Unit *> & freeUnits)
 {
-	std::vector<float> & act = Neural::getActions();
+	std::vector<float> & act = Neural::Instance().getActions();
 	if (act[0] == 1.0){
 		int ourForceSize = (int)freeUnits.size();
 
@@ -669,8 +669,8 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
 
  const int StrategyManager::getCurrentStrategy()
  {
-	 std::vector<float> & act = Neural::getActions();
-	 if (act[3] == 1.0){
+	 std::vector<float> & act = Neural::Instance().getActions();
+	 if (act[2] == 1.0){
 		 currentStrategy = ProtossZealotRush;
 	 }
 	 else{

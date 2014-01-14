@@ -3,6 +3,7 @@
 #include "Common.h"
 #include "micromanagement/MicroManager.h"
 #include "micromanagement/MicroUtil.h"
+#include "Neural.h"
 
 class ScoutManager {
 

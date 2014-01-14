@@ -8,21 +8,23 @@ ScoutManager::ScoutManager() : workerScout(NULL), numWorkerScouts(0), scoutUnder
 
 void ScoutManager::update(const std::set<BWAPI::Unit *> & scoutUnits)
 {
-	if (scoutUnits.size() == 1)
-	{
-		BWAPI::Unit * scoutUnit = *scoutUnits.begin();
-
-		if (scoutUnit->getType().isWorker())
+	std::vector<float> & act = Neural::Instance().getActions();
+	if (act[3] == 1.0){
+		if (scoutUnits.size() == 1)
 		{
-			if (scoutUnit != workerScout)
+			BWAPI::Unit * scoutUnit = *scoutUnits.begin();
+
+			if (scoutUnit->getType().isWorker())
 			{
-				numWorkerScouts++;
-				workerScout = scoutUnit;
+				if (scoutUnit != workerScout)
+				{
+					numWorkerScouts++;
+					workerScout = scoutUnit;
+				}
 			}
 		}
+		moveScouts();
 	}
-
-	moveScouts();
 }
 
 void ScoutManager::moveScouts()
