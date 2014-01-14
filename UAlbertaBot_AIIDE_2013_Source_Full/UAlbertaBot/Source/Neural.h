@@ -45,7 +45,7 @@ class Neural
 
 	std::vector<float>	states;
 
-	FANN::neural_net net;
+	static FANN::neural_net net;
 
 	int count;
 
@@ -102,7 +102,7 @@ public:
 
 	void				update();
 
-	static std::vector<float> &		getActions();
+	const std::vector<float> &		getActions();
 
 
 };

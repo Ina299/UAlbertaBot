@@ -280,6 +280,6 @@ int Neural::setNumState(){
 	return region_count;
 }
 
-std::vector<float> & Neural::getActions(){
+const std::vector<float> & Neural::getActions(){
 	return inputs[count];
 }
