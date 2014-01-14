@@ -2,6 +2,8 @@
 
 #include "Common.h"
 #include "BWTA.h"
+#include "BWAPI/Unit.h"
+#include "BWAPI/Region.h"
 #include "base/BuildOrderQueue.h"
 #include "InformationManager.h"
 #include "base/WorkerManager.h"
@@ -45,32 +47,30 @@ class Neural
 
 	std::vector<float>	states;
 
-	static FANN::neural_net net;
+	FANN::neural_net net;
 
 	int count;
 
-	const int num_actions=5;
+	static const int num_actions=5;
 	int num_states;
-	const int unit_count = 2;
+	static const int unit_count = 2;
 	//ここから強化学習のパラメータ
-	const float gamma = 0.95;
-	const float alpha = 0.7;
+	float gamma;
+	float alpha;
 
 	//ここからニューラルネットのパラメータ
-	const float learning_rate = 0.7f;
-	const unsigned int num_layers = 3;
+	float learning_rate;
+	static const int num_layers = 3;
 	unsigned int num_input;
-	const unsigned int num_hidden = 3;
-	const unsigned int num_output = 1;
-	const float desired_error = 0.001f;
+	static const int num_hidden = 3;
+	static const int num_output = 1;
+	float desired_error;
 
-	const unsigned int max_iterations = 300000;
+	static const int max_iterations = 300000;
 
-	const unsigned int iterations_between_reports = 1000;
+	static const int iterations_between_reports = 1000;
 
 //	void 	(FANN_API *createTrainDataset)(unsigned int, unsigned int, unsigned int, fann_type *, fann_type *);
-
-	FANN::neural_net net;
 
 	const	int					getScore(BWAPI::Player * player) const;
 

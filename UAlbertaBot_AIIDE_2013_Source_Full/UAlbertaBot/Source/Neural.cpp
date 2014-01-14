@@ -8,6 +8,11 @@ Neural::Neural()
 , enemyRace(BWAPI::Broodwar->enemy()->getRace())
 {
 	count = 0;
+	gamma = 0.95;
+	alpha = 0.7;
+	learning_rate = 0.7f;
+	desired_error = 0.001f;
+	static FANN::neural_net net;
 	//2進数で表すために2倍,敵ユニット味方ユニットで区別する
 	//+2は種族
 	num_states = setNumState()*unit_count*2 + 2;
@@ -123,7 +128,6 @@ void Neural::setActions()
 	//イプシロン=0.1でランダム化
 	if (rand()%10>8){
 		std::vector<float> 	actions(num_actions, 0.0);
-		std::vector<float>	states = getState();
 		std::vector<float>	input;
 		//2のnum_actions乗について総当り
 			for (int j; j < num_actions; ++j){
@@ -146,7 +150,6 @@ void Neural::selectBestAction(){
 
 	fann_type *best_out;
 	std::vector<float> 	actions(num_actions,0.0);
-	std::vector<float>	states = getState();
 	std::vector<float>	input;
 	//2のnum_actions乗について総当り
 	for (int i; i < (int)pow(2.0,num_actions);++i){
@@ -184,15 +187,15 @@ void Neural::setStates(){
 	std::map<int, int>	opponent_region_num;
 	BOOST_FOREACH(BWAPI::Region * currentRegion, BWAPI::Broodwar->getAllRegions()){
 		//		region_num[currentRegion->BWAPI::Region::getRegionGroupID()]=0;
-		own_region_num.insert(std::map<int, int>::value_type(currentRegion->BWAPI::Region::getRegionGroupID(), 0));
-		opponent_region_num.insert(std::map<int, int>::value_type(currentRegion->BWAPI::Region::getRegionGroupID(), 0));
+		own_region_num.insert(std::map<int, int>::value_type(currentRegion->getRegionGroupID(), 0));
+		opponent_region_num.insert(std::map<int, int>::value_type(currentRegion->getRegionGroupID(), 0));
 	}
 	//全てのユニットのRegion情報を足す
 	BOOST_FOREACH(BWAPI::Unit * currentUnit, BWAPI::Broodwar->enemy()->getUnits()){
-		opponent_region_num[currentUnit->BWAPI::Unit::getRegion()->BWAPI::Region::getRegionGroupID()] ++;
+		opponent_region_num[currentUnit->getRegion()->getRegionGroupID()] ++;
 	}
 	BOOST_FOREACH(BWAPI::Unit * currentUnit, BWAPI::Broodwar->self()->getUnits()){
-		own_region_num[currentUnit->BWAPI::Unit::getRegion()->BWAPI::Region::getRegionGroupID()] ++;
+		own_region_num[currentUnit->getRegion()->getRegionGroupID()] ++;
 	}
 	//各Regionごとに味方ユニット数が1つ、2つ、3つ、4つ以上で場合わけ
 	std::vector<float>	temp(num_states, 0.0);

@@ -107,7 +107,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateMapFile>true</GenerateMapFile>
-      <AdditionalLibraryDirectories>$(FANN_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(FANN_LIB);$(BWAPI_DIR);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -139,7 +139,9 @@
     <ClCompile Include="..\Source\micromanagement\ObserverManager.cpp" />
     <ClCompile Include="..\Source\micromanagement\RangedManager.cpp" />
     <ClCompile Include="..\Source\micromanagement\TransportManager.cpp" />
-    <ClCompile Include="..\Source\Neural.cpp" />
+    <ClCompile Include="..\Source\Neural.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(BWAPI_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
     <ClCompile Include="..\Source\Options.cpp" />
     <ClCompile Include="..\Source\ReplayVisualizer.cpp" />
     <ClCompile Include="..\Source\ScoutManager.cpp" />
