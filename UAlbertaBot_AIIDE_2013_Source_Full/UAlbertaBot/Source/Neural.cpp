@@ -2,6 +2,7 @@
 #include "Neural.h"
 
 
+FANN::neural_net net;
 // constructor
 Neural::Neural()
 :selfRace(BWAPI::Broodwar->self()->getRace())
@@ -12,7 +13,6 @@ Neural::Neural()
 	alpha = 0.7;
 	learning_rate = 0.7f;
 	desired_error = 0.001f;
-	static FANN::neural_net net;
 	//2進数で表すために2倍,敵ユニット味方ユニットで区別する
 	//+2は種族
 	num_states = setNumState()*unit_count*2 + 2;
@@ -130,7 +130,7 @@ void Neural::setActions()
 		std::vector<float> 	actions(num_actions, 0.0);
 		std::vector<float>	input;
 		//2のnum_actions乗について総当り
-			for (int j; j < num_actions; ++j){
+			for (int j=0; j < num_actions; ++j){
 				int flag = ((rand() % (int)pow(2.0, num_actions)) >> j) % 2;
 				flag == 1 ? actions[j] = 1.0 : actions[j] = 0.0;
 			}
@@ -149,11 +149,12 @@ void Neural::setActions()
 void Neural::selectBestAction(){
 
 	fann_type *best_out;
+	best_out[0] = -10;
 	std::vector<float> 	actions(num_actions,0.0);
 	std::vector<float>	input;
 	//2のnum_actions乗について総当り
-	for (int i; i < (int)pow(2.0,num_actions);++i){
-		for (int j; j < num_actions; ++j){
+	for (int i=0; i < (int)pow(2.0,num_actions);++i){
+		for (int j=0; j < num_actions; ++j){
 			int flag = (i >> j) % 2;
 			flag == 1 ? actions[j] = 1.0 : actions[j] = 0.0;
 		}
@@ -178,7 +179,7 @@ void Neural::update(){
 
 bool Neural::neuralUpdateFrame()
 {
-	return BWAPI::Broodwar->getFrameCount() % 48 == 0;
+	return BWAPI::Broodwar->getFrameCount() % 100 == 0;
 }
 
 void Neural::setStates(){

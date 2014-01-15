@@ -51,7 +51,7 @@ class Neural
 
 	int count;
 
-	static const int num_actions=5;
+	static const int num_actions=4;
 	int num_states;
 	static const int unit_count = 2;
 	//ここから強化学習のパラメータ

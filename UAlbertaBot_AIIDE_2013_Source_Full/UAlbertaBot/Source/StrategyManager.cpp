@@ -316,7 +316,7 @@ const int StrategyManager::defendWithWorkers()
 // *Ina Important Function* see combat commander too
 const bool StrategyManager::doAttack(const std::set<BWAPI::Unit *> & freeUnits)
 {
-	if (Neural::Instance().getActions()[1] == 1.0){
+	if (Neural::Instance().getActions()[1] == 0.0){
 		int ourForceSize = (int)freeUnits.size();
 
 		int numUnitsNeededForAttack = 1;
@@ -667,7 +667,7 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
 
 const int StrategyManager::getCurrentStrategy()
  {
-	if (Neural::Instance().getActions()[2] == 1.0){
+	if (Neural::Instance().getActions()[2] == 0.0){
 		 currentStrategy = ProtossZealotRush;
 	 }
 	 else{
