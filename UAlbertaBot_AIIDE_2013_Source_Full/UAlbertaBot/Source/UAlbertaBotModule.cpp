@@ -25,7 +25,7 @@ UAlbertaBotModule::~UAlbertaBotModule() {}
 void UAlbertaBotModule::onStart()
 {
 	BWAPI::Broodwar->setLocalSpeed(0);
-	BWAPI::Broodwar->setFrameSkip(240);
+//	BWAPI::Broodwar->setFrameSkip(240);
 
     SparCraft::init();
 

@@ -1,18 +1,20 @@
 #include "Common.h"
 #include "Neural.h"
 
-
-FANN::neural_net net;
 // constructor
 Neural::Neural()
 :selfRace(BWAPI::Broodwar->self()->getRace())
 , enemyRace(BWAPI::Broodwar->enemy()->getRace())
 {
+
+    static FANN::neural_net net;
 	count = 0;
 	gamma = 0.95;
 	alpha = 0.7;
 	learning_rate = 0.7f;
 	desired_error = 0.001f;
+	writeDir = "bwapi-data/read/";
+	readDir = "bwapi-data/write/";
 	//2進数で表すために2倍,敵ユニット味方ユニットで区別する
 	//+2は種族
 	num_states = setNumState()*unit_count*2 + 2;
@@ -148,8 +150,7 @@ void Neural::setActions()
 
 void Neural::selectBestAction(){
 
-	fann_type *best_out;
-	best_out[0] = -10;
+	fann_type best_out = -10.0;
 	std::vector<float> 	actions(num_actions,0.0);
 	std::vector<float>	input;
 	//2のnum_actions乗について総当り
@@ -161,10 +162,10 @@ void Neural::selectBestAction(){
 			input.insert(actions.end(), states.begin(),
 				states.end());
 			fann_type *calc_out = net.run(&input[0]);
-			if (best_out[0] < calc_out[0]){
-				best_out[0] = calc_out[0];
+			if (best_out < calc_out[0]){
+				best_out = calc_out[0];
 				bestinput = input;
-				outputs[count][0] = best_out[0];
+				outputs[count][0] = best_out;
 		}
 	}
 }
