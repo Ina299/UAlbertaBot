@@ -9,6 +9,7 @@
 #include "base/BuildingManager.h"
 #include "ScoutManager.h"
 #include "StrategyManager.h"
+#include "Neural.h""
 
 #include "..\..\StarcraftBuildOrderSearch\Source\starcraftsearch\Timer.hpp"
 
@@ -97,6 +98,7 @@ class GameCommander
 	CombatCommander		combatCommander;
 	ScoutManager		scoutManager;
 	TimerManager		timerManager;
+	Neural				Neural;
 
 	std::set<BWAPI::Unit *> combatUnits;
 	std::set<BWAPI::Unit *> scoutUnits;

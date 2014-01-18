@@ -31,8 +31,6 @@ typedef std::vector<MetaPair> MetaPairVector;
 
 class Neural
 {
-	Neural();
-	~Neural() {}
 
 	std::string					readDir;
 	std::string					writeDir;
@@ -95,6 +93,8 @@ class Neural
 	int		setNumState();
 
 public:
+	Neural();
+	~Neural() {}
 
 	static	Neural &	Instance();
 
