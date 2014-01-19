@@ -1,26 +1,28 @@
 #include "Common.h"
 #include "Neural.h"
 
-FANN::neural_net net;
+
+static FANN::neural_net net;
+
 // constructor
 Neural::Neural()
 :selfRace(BWAPI::Broodwar->self()->getRace())
 , enemyRace(BWAPI::Broodwar->enemy()->getRace())
 {
-	count = 0;
+	BWAPI::Broodwar->sendText("Neural constructed");
 	gamma = 0.95;
 	alpha = 0.7;
 	learning_rate = 0.7f;
 	desired_error = 0.001f;
-	writeDir = "bwapi-data/read/";
-	readDir = "bwapi-data/write/";
+	writeDir = "D:\\StarCraft\\bwapi-data\\write\\";
+	readDir = "D:\\StarCraft\\bwapi-data\\read\\";
 	//2進数で表すために2倍,敵ユニット味方ユニットで区別する
 	//+2は種族
 	num_states = setNumState()*unit_count*2 + 2;
 	num_input = num_actions + num_states;
+	createNetwork();
 	setStates();
 	setActions();
-	createNetwork();
 }
 
 // get an instance of this
@@ -33,6 +35,7 @@ Neural & Neural::Instance()
 
 void Neural::onEnd(const bool isWinner)
 {
+	size_t count = outputs.size();
 	// if the game ended before the tournament time limit
 	// 報酬によってoutputsを更新する
 	if (BWAPI::Broodwar->getFrameCount() < Options::Tournament::GAME_END_FRAME)
@@ -40,17 +43,35 @@ void Neural::onEnd(const bool isWinner)
 		if (isWinner)
 		{
 			//報酬の設定
-			outputs[count][0] = 1.0;
-			for (float i = count-1; i > 0; --i){
-				outputs[i][0] = outputs[i][0]
-					+alpha*(1.0+gamma*outputs[i+1][0]-outputs[i][0]);
+			outputs[count-1][0] = 1.0;
+			/*
+			std::vector<std::vector<float>>::iterator it = outputs.end();
+			it=it-2;
+			while (it != outputs.begin()){
+				*it[0] += alpha*(1.0 + gamma*(*(it+1).back() - it.front());
+				--it;
+			}
+			*/
+			for (size_t i = count - 2 ; i > 0 ; --i){
+				float temp = outputs[i][0];
+				float neko;
+				//test
+				neko = gamma * outputs[i+1][0];
+				temp += alpha * (-1.0 + neko - temp);
+				std::vector<float> x;
+				x.push_back(temp);
+				outputs[i] = x;
 			}
 		}
 		else
 		{
 			//報酬の設定
-			outputs[count][0] = -1.0;
-			for (float i = count - 1; i > 0; --i){
+			/*	
+			std::vector<float> lose(1, -1.0);
+			outputs[count]=lose;
+			*/
+			outputs[count-1][0] = -1.0;
+			for (float i = count - 2; i > 0; --i){
 				outputs[i][0] = outputs[i][0]
 					+ alpha*(-1.0 + gamma*outputs[i + 1][0] - outputs[i][0]);
 			}
@@ -97,10 +118,11 @@ void	Neural::createNetwork()
 {
 	//	cout << endl << "Creating network." << endl;
 	if (net.create_from_file(readDir + BWAPI::Broodwar->enemy()->getName() + ".net")){
-
+		BWAPI::Broodwar->sendText("network read");
 	}
 	else
 	{
+		BWAPI::Broodwar->sendText("new network constructed");
 		net.create_standard(num_layers, num_input, num_hidden, num_output);
 
 		net.set_learning_rate(learning_rate);
@@ -124,32 +146,34 @@ const int Neural::getScore(BWAPI::Player * player) const
 
 void Neural::setActions()
 {
-	count++;
+	BWAPI::Broodwar->sendText("SelectStrategy");
 	srand((unsigned int)time(NULL));
 	//イプシロン=0.1でランダム化
 	if (rand()%10>8){
 		std::vector<float> 	actions(num_actions, 0.0);
 		std::vector<float>	input;
+		std::vector<float>  best_out(1,-10.0);
 		//2のnum_actions乗について総当り
 			for (int j=0; j < num_actions; ++j){
 				int flag = ((rand() % (int)pow(2.0, num_actions)) >> j) % 2;
 				flag == 1 ? actions[j] = 1.0 : actions[j] = 0.0;
 			}
-			input.insert(actions.end(), states.begin(),
+			input.insert(input.end(), actions.begin(),
+				actions.end());
+			input.insert(input.end(), states.begin(),
 				states.end());
-			fann_type *calc_out = net.run(&input[0]);
-			outputs[count][0] = calc_out[0];
-			inputs[count] = input;
+			best_out[0]=*net.run(&input[0]);
+			outputs.push_back(best_out);
+			inputs.push_back(input);
 	}
 	else{
 		selectBestAction();
-		inputs[count] = bestinput;
 	}
 }
 
 void Neural::selectBestAction(){
 
-	fann_type best_out = -10.0;
+	std::vector<float>  best_out(1,-10.0);
 	std::vector<float> 	actions(num_actions,0.0);
 	std::vector<float>	input;
 	//2のnum_actions乗について総当り
@@ -158,13 +182,16 @@ void Neural::selectBestAction(){
 			int flag = (i >> j) % 2;
 			flag == 1 ? actions[j] = 1.0 : actions[j] = 0.0;
 		}
-			input.insert(actions.end(), states.begin(),
+		input.insert(input.end(), actions.begin(),
+			actions.end());
+			input.insert(input.end(), states.begin(),
 				states.end());
-			fann_type *calc_out = net.run(&input[0]);
-			if (best_out < calc_out[0]){
-				best_out = calc_out[0];
-				bestinput = input;
-				outputs[count][0] = best_out;
+			//test
+			float calc_out = *net.run(&input[0]);
+			if (best_out[0] < calc_out){
+				best_out[0] = calc_out;
+				outputs.push_back(best_out);
+				inputs.push_back(input);
 		}
 	}
 }
@@ -179,7 +206,7 @@ void Neural::update(){
 
 bool Neural::neuralUpdateFrame()
 {
-	return BWAPI::Broodwar->getFrameCount() % 100 == 0;
+	return BWAPI::Broodwar->getFrameCount() % 120 == 0;
 }
 
 void Neural::setStates(){
@@ -285,5 +312,5 @@ int Neural::setNumState(){
 }
 
 const std::vector<float> & Neural::getActions(){
-	return inputs[count];
+	return inputs.back();
 }

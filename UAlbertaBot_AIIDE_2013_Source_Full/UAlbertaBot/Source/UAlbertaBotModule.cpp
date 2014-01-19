@@ -26,7 +26,7 @@ void UAlbertaBotModule::onStart()
 {
 	BWAPI::Broodwar->setLocalSpeed(0);
 //	BWAPI::Broodwar->setFrameSkip(240);
-
+	BWAPI::Broodwar->printf("Main Started");
     SparCraft::init();
 
 	BWAPI::Broodwar->enableFlag(BWAPI::Flag::UserInput);

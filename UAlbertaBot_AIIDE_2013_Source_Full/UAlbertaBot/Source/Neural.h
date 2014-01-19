@@ -40,14 +40,12 @@ class Neural
 	BWAPI::Race					selfRace;
 	BWAPI::Race					enemyRace;
 
-	std::vector<float> 	bestinput;
+//	std::vector<float> 	bestinput;
 
 	std::vector<std::vector<float> >	inputs;
 	std::vector<std::vector<float> >	outputs;
 
 	std::vector<float>	states;
-
-	int count;
 
 	static const int num_actions=4;
 	int num_states;
