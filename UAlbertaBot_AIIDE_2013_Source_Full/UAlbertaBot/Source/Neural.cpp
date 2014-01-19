@@ -14,8 +14,8 @@ Neural::Neural()
 	alpha = 0.7;
 	learning_rate = 0.7f;
 	desired_error = 0.001f;
-	writeDir = "D:\\StarCraft\\bwapi-data\\write\\";
-	readDir = "D:\\StarCraft\\bwapi-data\\read\\";
+	writeDir = "bwapi-data\\write\\";
+	readDir = "bwapi-data\\read\\";
 	//2進数で表すために2倍,敵ユニット味方ユニットで区別する
 	//+2は種族
 	num_states = setNumState()*unit_count*2 + 2;
@@ -109,7 +109,7 @@ void Neural::onEnd(const bool isWinner)
 	net.train_on_data(data, max_iterations,
 		iterations_between_reports, desired_error);
 
-	net.save(writeDir + BWAPI::Broodwar->enemy()->getName() + ".net");
+	net.save((writeDir + BWAPI::Broodwar->enemy()->getName() + ".net").c_str());
 	}
 }
 
@@ -117,7 +117,7 @@ void Neural::onEnd(const bool isWinner)
 void	Neural::createNetwork()
 {
 	//	cout << endl << "Creating network." << endl;
-	if (net.create_from_file(readDir + BWAPI::Broodwar->enemy()->getName() + ".net")){
+	if (net.create_from_file((readDir + BWAPI::Broodwar->enemy()->getName() + ".net").c_str())){
 		BWAPI::Broodwar->sendText("network read");
 	}
 	else
