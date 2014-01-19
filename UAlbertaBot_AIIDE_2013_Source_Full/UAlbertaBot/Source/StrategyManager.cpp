@@ -278,6 +278,10 @@ const std::string StrategyManager::getOpeningBook() const
 const int StrategyManager::defendWithWorkers()
 {
 	if (Neural::Instance().getActions()[0] == 1.0){
+
+		return false;
+	}
+	else{
 		if (!Options::Micro::WORKER_DEFENSE)
 		{
 			return false;
@@ -308,7 +312,6 @@ const int StrategyManager::defendWithWorkers()
 		// if there are enemy units near our workers, we want to defend
 		return enemyUnitsNearWorkers;
 	}
-	return false;
 }
 
 // called by combat commander to determine whether or not to send an attack force

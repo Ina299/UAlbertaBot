@@ -31,6 +31,8 @@ typedef std::vector<MetaPair> MetaPairVector;
 
 class Neural
 {
+	Neural();
+	~Neural(){}
 
 	std::string					readDir;
 	std::string					writeDir;
@@ -44,8 +46,6 @@ class Neural
 	std::vector<std::vector<float> >	outputs;
 
 	std::vector<float>	states;
-
-	FANN::neural_net net;
 
 	int count;
 
@@ -74,6 +74,8 @@ class Neural
 
 	void	setActions();
 
+	FANN::neural_net net;
+	
 	void	selectBestAction();
 
 	int print_callback(FANN::neural_net &net, FANN::training_data &train,
@@ -93,8 +95,7 @@ class Neural
 	int		setNumState();
 
 public:
-	Neural();
-	~Neural() {}
+	
 
 	static	Neural &	Instance();
 

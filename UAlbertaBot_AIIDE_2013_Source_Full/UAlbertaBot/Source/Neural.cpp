@@ -1,13 +1,12 @@
 #include "Common.h"
 #include "Neural.h"
 
+FANN::neural_net net;
 // constructor
 Neural::Neural()
 :selfRace(BWAPI::Broodwar->self()->getRace())
 , enemyRace(BWAPI::Broodwar->enemy()->getRace())
 {
-
-    static FANN::neural_net net;
 	count = 0;
 	gamma = 0.95;
 	alpha = 0.7;

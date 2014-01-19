@@ -9,7 +9,7 @@
 #include "base/BuildingManager.h"
 #include "ScoutManager.h"
 #include "StrategyManager.h"
-#include "Neural.h""
+#include "Neural.h"
 
 #include "..\..\StarcraftBuildOrderSearch\Source\starcraftsearch\Timer.hpp"
 
@@ -23,19 +23,19 @@ class TimerManager
 
 public:
 
-	enum Type { All, Worker, Production, Building, Combat, Scout, InformationManager, Neural, MapGrid, MapTools, Search, NumTypes };
+	enum Type { All,  Neural, Worker, Production, Building, Combat, Scout, InformationManager, MapGrid, MapTools, Search, NumTypes };
 
 
 	TimerManager() : timers(std::vector<BuildOrderSearch::Timer>(NumTypes)), barWidth(40)
 	{
 		timerNames.push_back("Total");
+		timerNames.push_back("Neural");
 		timerNames.push_back("Worker");
 		timerNames.push_back("Production");
 		timerNames.push_back("Building");
 		timerNames.push_back("Combat");
 		timerNames.push_back("Scout");
 		timerNames.push_back("UnitInfo");
-		timerNames.push_back("Neural");
 		timerNames.push_back("MapGrid");
 		timerNames.push_back("MapTools");
 		timerNames.push_back("Search");
@@ -98,7 +98,6 @@ class GameCommander
 	CombatCommander		combatCommander;
 	ScoutManager		scoutManager;
 	TimerManager		timerManager;
-	Neural				Neural;
 
 	std::set<BWAPI::Unit *> combatUnits;
 	std::set<BWAPI::Unit *> scoutUnits;
