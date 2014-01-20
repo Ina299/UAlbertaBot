@@ -153,14 +153,17 @@ void Neural::onEnd(const bool isWinner)
 	}
 
 	FANN::training_data data;
-	float **tem1 = new float*[count]();
-	float **tem2 = new float*[count]();
+	float **tem1 = new float*[count];
+	float **tem2 = new float*[count];
 	//		tem1[i] = new float[inputs[i].size()];
 	for (int i = 0; i < count; ++i)
 	{
+		tem1[i] = new float[inputs[i].size()+1];
+		tem2[i] = new float[outputs[i].size()+1];
 		tem1[i] = &inputs[i][0];
 		tem2[i] = &outputs[i][0];
 	}
+
 	data.set_train_data(count-1,num_input,tem1,
 									num_output,tem2);
 	BWAPI::Broodwar->printf("Create Data");
@@ -176,34 +179,36 @@ void Neural::onEnd(const bool isWinner)
 		iterations_between_reports, desired_error);
 //	BWAPI::Broodwar->printf("Successfully trained");
 
-	if (!net.save(writeDir + BWAPI::Broodwar->enemy()->getName() + ".net"))
+	if (!net.save(writeDir + "test" + ".net"))
 	{
 		std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ".txt";
 		std::ofstream f_out(writeFile.c_str());
 		f_out << "failed";
 		f_out.close();
 	}
-	for (int i = 0; i < count; ++i){
-		std::vector<float>().swap(inputs[i]);
-		std::vector<float>().swap(outputs[i]);
-	}
 	/*
 	for (int i = 0; i < count; ++i)
 	{
 		delete[] tem1[i];
 		delete[] tem2[i];
+//		std::vector<float>().swap(inputs[i]);
+//		std::vector<float>().swap(outputs[i]);
 	}
+	delete[] tem1;
+	delete[] tem2;
 	*/
+	/*
 	delete[]	tem1;
 	delete[]	tem2;
-	
+	*/
 }
 
 // Test function that demonstrates usage of the fann C++ wrapper
 void	Neural::createNetwork()
 {
 	//	cout << endl << "Creating network." << endl;
-	if (net.create_from_file(readDir + BWAPI::Broodwar->enemy()->getName() + ".net")){
+	//BWAPI::Broodwar->enemy()->getName()
+	if (net.create_from_file(readDir + "test" + ".net")){
 		BWAPI::Broodwar->sendText("network read");
 	}
 	else
