@@ -5,7 +5,6 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
-#include <stdlib.h>
 
 //ここからニューラルネットのパラメータ
 const int num_actions = 4;
@@ -154,17 +153,16 @@ void Neural::onEnd(const bool isWinner)
 	}
 
 	FANN::training_data data;
-	float **tem1;
-	float **tem2;
-	tem1 = (float**)malloc(sizeof(float *)* count);
-	tem2 = (float**)malloc(sizeof(float *)* count);
-	for (int i = 0; i<count; i++) {
-		tem1[i] = (float*)malloc(sizeof(float )* inputs[i].size());
-		tem2[i] = (float*)malloc(sizeof(float )* outputs[i].size());
+	float **tem1 = new float*[count];
+	float **tem2 = new float*[count];
+	//		tem1[i] = new float[inputs[i].size()];
+	for (int i = 0; i < count; ++i)
+	{
+		tem1[i] = new float[inputs[i].size()];
+		tem2[i] = new float[outputs[i].size()];
 		tem1[i] = &inputs[i][0];
 		tem2[i] = &outputs[i][0];
 	}
-	//		tem1[i] = new float[inputs[i].size()];
 
 	data.set_train_data(count-1,num_input,tem1,
 									num_output,tem2);
@@ -188,13 +186,7 @@ void Neural::onEnd(const bool isWinner)
 		f_out << "failed";
 		f_out.close();
 	}
-	for (int i = 0; i<count; i++) {
-		free(tem1[i]);
-		free(tem2[i]);
-	}
-	free(tem1);
-	free(tem2);
-	/*
+	
 	for (int i = 0; i < count; ++i)
 	{
 		delete[] tem1[i];
@@ -204,7 +196,7 @@ void Neural::onEnd(const bool isWinner)
 	}
 	delete[] tem1;
 	delete[] tem2;
-	*/
+	
 	/*
 	delete[]	tem1;
 	delete[]	tem2;
