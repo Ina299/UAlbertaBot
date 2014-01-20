@@ -18,7 +18,7 @@ const float learning_rate = 0.7f;
 //const int max_iterations = 300000;
 //const int iterations_between_reports = 1000;
 const float desired_error = 0.01f;
-const int max_iterations = 2000;
+const int max_iterations = 1;
 const int iterations_between_reports = 0;
 //ここから強化学習のパラメータ
 const float gamma = 0.95;
@@ -174,7 +174,7 @@ void Neural::onEnd(const bool isWinner)
 	net.init_weights(data);
 	net.train_on_data(data, max_iterations,
 		iterations_between_reports, desired_error);
-	BWAPI::Broodwar->printf("Successfully trained");
+//	BWAPI::Broodwar->printf("Successfully trained");
 
 	if (!net.save(writeDir + BWAPI::Broodwar->enemy()->getName() + ".net"))
 	{
@@ -183,17 +183,20 @@ void Neural::onEnd(const bool isWinner)
 		f_out << "failed";
 		f_out.close();
 	}
-	inputs.clear();
-	outputs.clear();
+	for (int i = 0; i < count; ++i){
+		std::vector<float>().swap(inputs[i]);
+		std::vector<float>().swap(outputs[i]);
+	}
+	/*
 	for (int i = 0; i < count; ++i)
 	{
 		delete[] tem1[i];
 		delete[] tem2[i];
-		//std::vector<float>().swap(inputs[i]);
-		//std::vector<float>().swap(outputs[i]);
 	}
+	*/
 	delete[]	tem1;
 	delete[]	tem2;
+	
 }
 
 // Test function that demonstrates usage of the fann C++ wrapper
