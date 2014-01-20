@@ -13,9 +13,13 @@ const int num_layers = 3;
 const int num_hidden = 3;
 const int num_output = 1;
 const float learning_rate = 0.7f;
-const float desired_error = 0.001f;
-const int max_iterations = 300000;
-const int iterations_between_reports = 1000;
+//origin
+//const float desired_error = 0.001f;
+//const int max_iterations = 300000;
+//const int iterations_between_reports = 1000;
+const float desired_error = 0.01f;
+const int max_iterations = 2000;
+const int iterations_between_reports = 0;
 //‚±‚±‚©‚ç‹­‰»ŠwK‚Ìƒpƒ‰ƒ[ƒ^
 const float gamma = 0.95;
 const float alpha = 0.7;
@@ -63,7 +67,6 @@ void Neural::onEnd(const bool isWinner)
 	{
 		if (isWinner)
 		{
-			
 			//•ñV‚Ìİ’è
 			outputs[count-1][0] = 1.0;
 			
@@ -75,19 +78,8 @@ void Neural::onEnd(const bool isWinner)
 				temp += alpha * (1.0 + neko - temp);
 				std::vector<float> x;
 				x.push_back(temp);
-				outputs[i] = x;
-				std::stringstream ss;
-				ss << i;
-				std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ss.str() +".txt";
-				std::ofstream f_out(writeFile.c_str());
-				f_out << "win:"<<temp;
-				f_out.close();
-				
+				outputs[i] = x;	
 			}
-			std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ".txt";
-			std::ofstream f_out(writeFile.c_str());
-			f_out << "result";
-			f_out.close();
 		}
 		else
 		{
@@ -110,19 +102,8 @@ void Neural::onEnd(const bool isWinner)
 				temp += alpha * (-1.0 + neko - temp);
 				std::vector<float> x;
 				x.push_back(temp);
-				outputs[i] = x;
-				std::stringstream ss;
-				ss << i;
-				std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ss.str() + ".txt";
-				std::ofstream f_out(writeFile.c_str());
-				f_out << "lost:"<<temp;
-				f_out.close();
-				
+				outputs[i] = x;	
 			}
-			std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ".txt";
-			std::ofstream f_out(writeFile.c_str());
-			f_out << "result";
-			f_out.close();
 		}
 	}
 	// otherwise game timed out so use in-game score
@@ -146,18 +127,8 @@ void Neural::onEnd(const bool isWinner)
 				std::vector<float> x;
 				x.push_back(temp);
 				outputs[i] = x;
-				std::stringstream ss;
-				ss << i;
-				std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ss.str() + ".txt";
-				std::ofstream f_out(writeFile.c_str());
-				f_out << "hantei win:" <<temp;
-				f_out.close();
-				
 			}
-			std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ".txt";
-			std::ofstream f_out(writeFile.c_str());
-			f_out << "result";
-			f_out.close();
+			
 		}
 		else
 		{
@@ -176,18 +147,8 @@ void Neural::onEnd(const bool isWinner)
 				std::vector<float> x;
 				x.push_back(temp);
 				outputs[i] = x;
-				std::stringstream ss;
-				ss << i;
-				std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ss.str() + ".txt";
-				std::ofstream f_out(writeFile.c_str());
-				f_out << "hantei lost:"<<temp;
-				f_out.close();
-				
 			}
-			std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ".txt";
-			std::ofstream f_out(writeFile.c_str());
-			f_out << "result";
-			f_out.close();
+			
 		}
 	}
 
@@ -203,11 +164,18 @@ void Neural::onEnd(const bool isWinner)
 	data.set_train_data(count-1,num_input,tem1,
 									num_output,tem2);
 	BWAPI::Broodwar->printf("Create Data");
+	/*
+	std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() +"DataCreate" +".txt";
+	std::ofstream p_out(writeFile.c_str());
+	p_out << "failed";
+	p_out.close();
+	*/
 	// Initialize and train the network with the data
 	net.init_weights(data);
 	net.train_on_data(data, max_iterations,
 		iterations_between_reports, desired_error);
 	BWAPI::Broodwar->printf("Successfully trained");
+
 	if (!net.save(writeDir + BWAPI::Broodwar->enemy()->getName() + ".net"))
 	{
 		std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ".txt";
@@ -215,10 +183,14 @@ void Neural::onEnd(const bool isWinner)
 		f_out << "failed";
 		f_out.close();
 	}
+	inputs.clear();
+	outputs.clear();
 	for (int i = 0; i < count; ++i)
 	{
 		delete[] tem1[i];
 		delete[] tem2[i];
+		//std::vector<float>().swap(inputs[i]);
+		//std::vector<float>().swap(outputs[i]);
 	}
 	delete[]	tem1;
 	delete[]	tem2;
