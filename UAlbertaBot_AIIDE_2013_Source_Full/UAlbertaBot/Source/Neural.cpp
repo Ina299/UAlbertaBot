@@ -1,8 +1,26 @@
 #include "Common.h"
 #include "Neural.h"
+#include <ios>
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <sstream>
 
-
-static FANN::neural_net net;
+//ここからニューラルネットのパラメータ
+const int num_actions = 4;
+const int unit_count = 2;
+const int num_layers = 3;
+const int num_hidden = 3;
+const int num_output = 1;
+const float learning_rate = 0.7f;
+const float desired_error = 0.001f;
+const int max_iterations = 300000;
+const int iterations_between_reports = 1000;
+//ここから強化学習のパラメータ
+const float gamma = 0.95;
+const float alpha = 0.7;
+const std::string writeDir = "bwapi-data\\write\\";
+const std::string readDir = "bwapi-data\\read\\";
 
 // constructor
 Neural::Neural()
@@ -10,12 +28,7 @@ Neural::Neural()
 , enemyRace(BWAPI::Broodwar->enemy()->getRace())
 {
 	BWAPI::Broodwar->sendText("Neural constructed");
-	gamma = 0.95;
-	alpha = 0.7;
-	learning_rate = 0.7f;
-	desired_error = 0.001f;
-	writeDir = "bwapi-data\\write\\";
-	readDir = "bwapi-data\\read\\";
+	
 	//2進数で表すために2倍,敵ユニット味方ユニットで区別する
 	//+2は種族
 	num_states = setNumState()*unit_count*2 + 2;
@@ -36,12 +49,20 @@ Neural & Neural::Instance()
 void Neural::onEnd(const bool isWinner)
 {
 	size_t count = outputs.size();
+	std::stringstream ss;
+	ss << count;
+	std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ss.str() + ".txt";
+	std::ofstream f_out(writeFile.c_str());
+	f_out << "test";
+	f_out.close();
 	// if the game ended before the tournament time limit
 	// 報酬によってoutputsを更新する
+	//caution!!このif文抜けたら強制終了します。
 	if (BWAPI::Broodwar->getFrameCount() < Options::Tournament::GAME_END_FRAME)
 	{
 		if (isWinner)
 		{
+			
 			//報酬の設定
 			outputs[count-1][0] = 1.0;
 			/*
@@ -56,12 +77,23 @@ void Neural::onEnd(const bool isWinner)
 				float temp = outputs[i][0];
 				float neko;
 				//test
-				neko = gamma * outputs[i+1][0];
+				neko = gamma * outputs[i + 1][0];
 				temp += alpha * (-1.0 + neko - temp);
 				std::vector<float> x;
 				x.push_back(temp);
 				outputs[i] = x;
+				std::stringstream ss;
+				ss << i;
+				std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ss.str() +".txt";
+				std::ofstream f_out(writeFile.c_str());
+				f_out << "win:"<<temp;
+				f_out.close();
+				
 			}
+			std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ".txt";
+			std::ofstream f_out(writeFile.c_str());
+			f_out << "result";
+			f_out.close();
 		}
 		else
 		{
@@ -71,10 +103,32 @@ void Neural::onEnd(const bool isWinner)
 			outputs[count]=lose;
 			*/
 			outputs[count-1][0] = -1.0;
-			for (float i = count - 2; i > 0; --i){
+			for (size_t i = count - 2; i > 0; --i){
+				/*
+				std::cout << "testa" << std::endl;
 				outputs[i][0] = outputs[i][0]
 					+ alpha*(-1.0 + gamma*outputs[i + 1][0] - outputs[i][0]);
+					*/
+				float temp = outputs[i][0];
+				float neko;
+				//test
+				neko = gamma * outputs[i + 1][0];
+				temp += alpha * (-1.0 + neko - temp);
+				std::vector<float> x;
+				x.push_back(temp);
+				outputs[i] = x;
+				std::stringstream ss;
+				ss << i;
+				std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ss.str() + ".txt";
+				std::ofstream f_out(writeFile.c_str());
+				f_out << "lost:"<<temp;
+				f_out.close();
+				
 			}
+			std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ".txt";
+			std::ofstream f_out(writeFile.c_str());
+			f_out << "result";
+			f_out.close();
 		}
 	}
 	// otherwise game timed out so use in-game score
@@ -83,33 +137,87 @@ void Neural::onEnd(const bool isWinner)
 	{
 		if (getScore(BWAPI::Broodwar->self()) > getScore(BWAPI::Broodwar->enemy()))
 		{
-			outputs[count][0] = 1.0;
-			for (float i = count - 1; i > 0; --i){
+			outputs[count-1][0] = 1.0;
+			for (size_t i = count - 2; i > 0; --i){
+				/*
+				std::cout << "testa" << std::endl;
 				outputs[i][0] = outputs[i][0]
 					+ alpha*(1.0 + gamma*outputs[i + 1][0] - outputs[i][0]);
+					*/
+				float temp = outputs[i][0];
+				float neko;
+				//test
+				neko = gamma * outputs[i + 1][0];
+				temp += alpha * (-1.0 + neko - temp);
+				std::vector<float> x;
+				x.push_back(temp);
+				outputs[i] = x;
+				std::stringstream ss;
+				ss << i;
+				std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ss.str() + ".txt";
+				std::ofstream f_out(writeFile.c_str());
+				f_out << "hantei win:" <<temp;
+				f_out.close();
+				
 			}
+			std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ".txt";
+			std::ofstream f_out(writeFile.c_str());
+			f_out << "result";
+			f_out.close();
 		}
 		else
 		{
-			outputs[count][0] = -1.0;
-			for (float i = count - 1; i > 0; --i){
+			outputs[count-1][0] = -1.0;
+			for (size_t i = count - 2; i > 0; --i){
+				/*
+				std::cout << "testa" << std::endl;
 				outputs[i][0] = outputs[i][0]
 					+ alpha*(-1.0 + gamma*outputs[i + 1][0] - outputs[i][0]);
+				*/
+				float temp = outputs[i][0];
+				float neko;
+				//test
+				neko = gamma * outputs[i + 1][0];
+				temp += alpha * (-1.0 + neko - temp);
+				std::vector<float> x;
+				x.push_back(temp);
+				outputs[i] = x;
+				std::stringstream ss;
+				ss << i;
+				std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ss.str() + ".txt";
+				std::ofstream f_out(writeFile.c_str());
+				f_out << "hantei lost:"<<temp;
+				f_out.close();
+				
 			}
+			std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ".txt";
+			std::ofstream f_out(writeFile.c_str());
+			f_out << "result";
+			f_out.close();
 		}
+		std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() +"end"+ ".txt";
+		std::ofstream f_out(writeFile.c_str());
+		f_out << "test";
+		f_out.close();
+
 
 
 	FANN::training_data data;
-
-
-	data.set_train_data(count,num_input,(float**)&inputs[0],
+	data.set_train_data(count-1,num_input,(float**)&inputs[0],
 									num_output,(float**)&outputs[0]);
+	BWAPI::Broodwar->printf("Create Data");
 	// Initialize and train the network with the data
 	net.init_weights(data);
 	net.train_on_data(data, max_iterations,
 		iterations_between_reports, desired_error);
-
-	net.save((writeDir + BWAPI::Broodwar->enemy()->getName() + ".net").c_str());
+	BWAPI::Broodwar->printf("Successfully trained");
+	if (!net.save(writeDir + BWAPI::Broodwar->enemy()->getName() + ".net"))
+	{
+		std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ".txt";
+		std::ofstream f_out(writeFile.c_str());
+		f_out << "failed";
+		f_out.close();
+	}
 	}
 }
 
@@ -117,7 +225,7 @@ void Neural::onEnd(const bool isWinner)
 void	Neural::createNetwork()
 {
 	//	cout << endl << "Creating network." << endl;
-	if (net.create_from_file((readDir + BWAPI::Broodwar->enemy()->getName() + ".net").c_str())){
+	if (net.create_from_file(readDir + BWAPI::Broodwar->enemy()->getName() + ".net")){
 		BWAPI::Broodwar->sendText("network read");
 	}
 	else
@@ -146,7 +254,7 @@ const int Neural::getScore(BWAPI::Player * player) const
 
 void Neural::setActions()
 {
-	BWAPI::Broodwar->sendText("SelectStrategy");
+//	BWAPI::Broodwar->sendText("SelectStrategy");
 	srand((unsigned int)time(NULL));
 	//イプシロン=0.1でランダム化
 	if (rand()%10>8){

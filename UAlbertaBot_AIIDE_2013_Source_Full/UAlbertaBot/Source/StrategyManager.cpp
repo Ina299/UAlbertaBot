@@ -88,8 +88,8 @@ void StrategyManager::readResults()
 	// if the file doesn't exist something is wrong so just set them to default settings
 	if (stat(Options::FileIO::FILE_SETTINGS, &buf) == -1)
 	{
-		readDir = "bwapi-data/testio/read/";
-		writeDir = "bwapi-data/testio/write/";
+		readDir = "bwapi-data\\read\\";
+		writeDir = "bwapi-data\\write\\";
 	}
 	else
 	{

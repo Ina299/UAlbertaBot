@@ -8,18 +8,17 @@
 #include "InformationManager.h"
 #include "base/WorkerManager.h"
 #include "base/StarcraftBuildOrderSearchManager.h"
-#include <sys/stat.h>
-#include <cstdlib>
 #include "floatfann.h"
 #include "fann_cpp.h"
-#include <ios>
-#include <iostream>
-#include <iomanip>
+#include <sys/stat.h>
+#include <cstdlib>
 #include <boost/foreach.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <math.h>
 #include <time.h>
 #include <map>
+
+
 
 #include "..\..\StarcraftBuildOrderSearch\Source\starcraftsearch\StarcraftData.hpp"
 
@@ -34,8 +33,8 @@ class Neural
 	Neural();
 	~Neural(){}
 
-	std::string					readDir;
-	std::string					writeDir;
+	//std::string					readDir;
+	//std::string					writeDir;
 
 	BWAPI::Race					selfRace;
 	BWAPI::Race					enemyRace;
@@ -47,24 +46,8 @@ class Neural
 
 	std::vector<float>	states;
 
-	static const int num_actions=4;
+	int num_input;
 	int num_states;
-	static const int unit_count = 2;
-	//ここから強化学習のパラメータ
-	float gamma;
-	float alpha;
-
-	//ここからニューラルネットのパラメータ
-	float learning_rate;
-	static const int num_layers = 3;
-	unsigned int num_input;
-	static const int num_hidden = 3;
-	static const int num_output = 1;
-	float desired_error;
-
-	static const int max_iterations = 300000;
-
-	static const int iterations_between_reports = 1000;
 
 //	void 	(FANN_API *createTrainDataset)(unsigned int, unsigned int, unsigned int, fann_type *, fann_type *);
 
@@ -76,11 +59,13 @@ class Neural
 	
 	void	selectBestAction();
 
+	/*
 	int print_callback(FANN::neural_net &net, FANN::training_data &train,
 		unsigned int max_epochs, unsigned int epochs_between_reports,
 		float desired_error, unsigned int epochs, void *user_data);
+		*/
 
-	void	strategy_test();
+//	void	strategy_test();
 
 	void	createNetwork();
 
@@ -88,7 +73,7 @@ class Neural
 
 	void	setStates();
 	//std::set<BWAPI::Unit *> & unitsToAssign
-	std::vector<float>	& getState();
+//	std::vector<float>	& getState();
 
 	int		setNumState();
 
