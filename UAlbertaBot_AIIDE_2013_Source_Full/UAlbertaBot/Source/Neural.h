@@ -9,7 +9,8 @@
 #include "base/WorkerManager.h"
 #include "base/StarcraftBuildOrderSearchManager.h"
 #include "floatfann.h"
-#include "fann_cpp.h"
+//#include "fann_cpp.h"
+#include "myfann_cpp.h"
 #include <sys/stat.h>
 #include <cstdlib>
 #include <boost/foreach.hpp>

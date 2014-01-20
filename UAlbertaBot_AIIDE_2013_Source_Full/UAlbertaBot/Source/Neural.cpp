@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
+#include <memory>
 
 //ここからニューラルネットのパラメータ
 const int num_actions = 4;
@@ -153,19 +154,22 @@ void Neural::onEnd(const bool isWinner)
 	}
 
 	FANN::training_data data;
-	float **tem1 = new float*[count];
-	float **tem2 = new float*[count];
+//	float **tem1 = new float*[count];
+//	float **tem2 = new float*[count];
+//	boost::shared_ptr<float **> p(&inputs[0]);
+//	boost::shared_ptr<float **> q(&inputs[0]);
 	//		tem1[i] = new float[inputs[i].size()];
-	for (int i = 0; i < count; ++i)
+/*	for (int i = 0; i < count; ++i)
 	{
 		tem1[i] = new float[inputs[i].size()];
 		tem2[i] = new float[outputs[i].size()];
 		tem1[i] = &inputs[i][0];
 		tem2[i] = &outputs[i][0];
 	}
-
-	data.set_train_data(count-1,num_input,tem1,
-									num_output,tem2);
+	*/
+//	data.set_train_data(count-1,num_input,tem1,
+	//								num_output,tem2);
+	data.set_train_data(inputs,outputs);
 	BWAPI::Broodwar->printf("Create Data");
 	/*
 	std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() +"DataCreate" +".txt";
@@ -186,21 +190,59 @@ void Neural::onEnd(const bool isWinner)
 		f_out << "failed";
 		f_out.close();
 	}
-	
+	std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + "for_omae.txt";
+	std::ofstream f_out(writeFile.c_str());
+	f_out << "failed";
+	f_out.close();
+	/*
 	for (int i = 0; i < count; ++i)
 	{
+		std::stringstream ss;
+		ss << i;
+		std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ss.str() + ".txt";
+		std::ofstream f_out(writeFile.c_str());
+		f_out << "failed";
+		f_out.close();
+		//std::vector<float>().swap(inputs[i]);
+		//std::vector<float>().swap(outputs[i]);
 		delete[] tem1[i];
 		delete[] tem2[i];
-//		std::vector<float>().swap(inputs[i]);
-//		std::vector<float>().swap(outputs[i]);
+		inputs[i][0] = 0;
+		outputs[i][0] = 0;
 	}
-	delete[] tem1;
-	delete[] tem2;
-	
+	*/
+	/*
+	for (int i = 0; i < count; ++i)
+	{
+		std::stringstream ss;
+		ss << i;
+		std::string priteFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ss.str() + "_delete.txt";
+		std::ofstream p_out(priteFile.c_str());
+		p_out << "failed";
+		p_out.close();
+		//std::vector<float>().swap(inputs[i]);
+		//std::vector<float>().swap(outputs[i]);
+				delete[] tem1[i];
+				delete[] tem2[i];
+	//	inputs[i][0] = 0;
+	//	outputs[i][0] = 0;
+	}
+	*/
+
+//	delete[] tem1;
+//	delete[] tem2;
+//	inputs.clear();
+//	outputs.clear();
+//	std::vector<std::vector<float> >().swap(inputs);
+//	std::vector<std::vector<float> >().swap(outputs);
 	/*
 	delete[]	tem1;
 	delete[]	tem2;
 	*/
+	std::string sriteFile = writeDir + BWAPI::Broodwar->enemy()->getName() + "_finish.txt";
+	std::ofstream l_out(sriteFile.c_str());
+	l_out << "failed";
+	l_out.close();
 }
 
 // Test function that demonstrates usage of the fann C++ wrapper
@@ -208,7 +250,7 @@ void	Neural::createNetwork()
 {
 	//	cout << endl << "Creating network." << endl;
 	//BWAPI::Broodwar->enemy()->getName()
-	if (net.create_from_file(readDir + "test" + ".net")){
+	if (net.create_from_file(writeDir + "test" + ".net")){
 		BWAPI::Broodwar->sendText("network read");
 	}
 	else
