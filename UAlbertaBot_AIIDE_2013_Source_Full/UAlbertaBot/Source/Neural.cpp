@@ -49,15 +49,16 @@ Neural & Neural::Instance()
 void Neural::onEnd(const bool isWinner)
 {
 	size_t count = outputs.size();
+	/*
 	std::stringstream ss;
 	ss << count;
 	std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ss.str() + ".txt";
 	std::ofstream f_out(writeFile.c_str());
 	f_out << "test";
 	f_out.close();
+	*/
 	// if the game ended before the tournament time limit
 	// •ñV‚É‚æ‚Á‚Äoutputs‚ðXV‚·‚é
-	//caution!!‚±‚Ìif•¶”²‚¯‚½‚ç‹­§I—¹‚µ‚Ü‚·B
 	if (BWAPI::Broodwar->getFrameCount() < Options::Tournament::GAME_END_FRAME)
 	{
 		if (isWinner)
@@ -65,20 +66,13 @@ void Neural::onEnd(const bool isWinner)
 			
 			//•ñV‚ÌÝ’è
 			outputs[count-1][0] = 1.0;
-			/*
-			std::vector<std::vector<float>>::iterator it = outputs.end();
-			it=it-2;
-			while (it != outputs.begin()){
-				*it[0] += alpha*(1.0 + gamma*(*(it+1).back() - it.front());
-				--it;
-			}
-			*/
+			
 			for (size_t i = count - 2 ; i > 0 ; --i){
 				float temp = outputs[i][0];
 				float neko;
 				//test
 				neko = gamma * outputs[i + 1][0];
-				temp += alpha * (-1.0 + neko - temp);
+				temp += alpha * (1.0 + neko - temp);
 				std::vector<float> x;
 				x.push_back(temp);
 				outputs[i] = x;
@@ -148,7 +142,7 @@ void Neural::onEnd(const bool isWinner)
 				float neko;
 				//test
 				neko = gamma * outputs[i + 1][0];
-				temp += alpha * (-1.0 + neko - temp);
+				temp += alpha * (1.0 + neko - temp);
 				std::vector<float> x;
 				x.push_back(temp);
 				outputs[i] = x;
@@ -195,16 +189,19 @@ void Neural::onEnd(const bool isWinner)
 			f_out << "result";
 			f_out.close();
 		}
-		std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() +"end"+ ".txt";
-		std::ofstream f_out(writeFile.c_str());
-		f_out << "test";
-		f_out.close();
-
-
+	}
 
 	FANN::training_data data;
-	data.set_train_data(count-1,num_input,(float**)&inputs[0],
-									num_output,(float**)&outputs[0]);
+	float **tem1 = new float*[count]();
+	float **tem2 = new float*[count]();
+	//		tem1[i] = new float[inputs[i].size()];
+	for (int i = 0; i < count; ++i)
+	{
+		tem1[i] = &inputs[i][0];
+		tem2[i] = &outputs[i][0];
+	}
+	data.set_train_data(count-1,num_input,tem1,
+									num_output,tem2);
 	BWAPI::Broodwar->printf("Create Data");
 	// Initialize and train the network with the data
 	net.init_weights(data);
@@ -218,7 +215,13 @@ void Neural::onEnd(const bool isWinner)
 		f_out << "failed";
 		f_out.close();
 	}
+	for (int i = 0; i < count; ++i)
+	{
+		delete[] tem1[i];
+		delete[] tem2[i];
 	}
+	delete[]	tem1;
+	delete[]	tem2;
 }
 
 // Test function that demonstrates usage of the fann C++ wrapper
