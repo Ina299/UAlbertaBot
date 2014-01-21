@@ -227,9 +227,10 @@ void Neural::setActions()
 void Neural::selectBestAction(){
 
  	std::vector<float>  best_out(1,-10.0f);
-	std::vector<float> 	actions(num_actions,1.0f);
+	std::vector<float>  best_inputs(num_input,2.0f);
 	//2‚Ìnum_actionsæ‚É‚Â‚¢‚Ä‘“–‚è
 	for (int i=0; i < (int)pow(2.0,num_actions);++i){
+		std::vector<float> 	actions(num_actions, 2.0f);
 		for (int j=0; j < num_actions; ++j){
 			int flag = (i >> j) % 2;
 			flag == 1 ? actions[j] = 1.0f : actions[j] = 0.0f;
@@ -237,13 +238,14 @@ void Neural::selectBestAction(){
 		actions.insert(actions.end(), states.begin(),
 				states.end());
 			//test
-			float calc_out = static_cast<float> (net.run(&actions[0])[0]);
+			float calc_out =  net.run(&actions[0])[0];
 			if (best_out[0] < calc_out){
 				best_out[0] = calc_out;
-				outputs.push_back(best_out);
-				inputs.push_back(actions);
+				best_inputs.swap(actions);
 		}
 	}
+	outputs.push_back(best_out);
+	inputs.push_back(best_inputs);
 }
 
 
@@ -328,24 +330,24 @@ void Neural::setStates(){
 
 	if (enemyRace == BWAPI::Races::Protoss)
 	{
-		temp[count_temp] = 4.0f;
-		temp[count_temp+1] = 4.0f;
+		temp[count_temp] = 1.0f;
+		temp[count_temp+1] = 1.0f;
 	}
 	else if (enemyRace == BWAPI::Races::Terran)
 	{
-		temp[count_temp] = 4.0f;
-		temp[count_temp + 1] = 4.0f;
+		temp[count_temp] = 1.0f;
+		temp[count_temp + 1] = 1.0f;
 	}
 	else if (enemyRace == BWAPI::Races::Zerg)
 	{
-		temp[count_temp] = 4.0f;
-		temp[count_temp + 1] = 4.0f;
+		temp[count_temp] = 1.0f;
+		temp[count_temp + 1] = 1.0f;
 	}
 	else
 	{
 //		BWAPI::Broodwar->printf("Enemy Race Unknown");
-		temp[count_temp] = 4.0f;
-		temp[count_temp + 1] = 4.0f;
+		temp[count_temp] = 1.0f;
+		temp[count_temp + 1] = 1.0f;
 	}
 	
 	
