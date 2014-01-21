@@ -144,6 +144,8 @@ void Neural::onEnd(const bool isWinner)
 	std::stringstream ss;
 	ss << (unsigned int)time(NULL);
 	data.save_train(writeDir + "test" +ss.str()+ ".data");
+	//Ÿ”s‚È‚Ç‚Ìƒf[ƒ^
+	/*
 	unsigned int decimal_point = net.save_to_fixed(writeDir + "test_fixed" + ".net");
 	data.save_train_to_fixed(writeDir + "test_fixed" + ".data", decimal_point);
 	if (isWinner){
@@ -158,6 +160,7 @@ void Neural::onEnd(const bool isWinner)
 		f_out << "lost";
 		f_out.close();
 	}
+	*/
 
 }
 
