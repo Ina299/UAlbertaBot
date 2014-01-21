@@ -33,7 +33,9 @@ Neural::Neural()
 , enemyRace(BWAPI::Broodwar->enemy()->getRace())
 {
 	BWAPI::Broodwar->sendText("Neural constructed");
-	
+	inputs.resize(0);
+	outputs.resize(0);
+	states.resize(0);
 	//2進数で表すために2倍,敵ユニット味方ユニットで区別する
 	//+2は種族
 	num_states = setNumState()*unit_count*2 + 2;
@@ -77,7 +79,7 @@ void Neural::onEnd(const bool isWinner)
 				//test
 				neko = gamma * outputs[i + 1][0];
 				temp += alpha * (1.0 + neko - temp);
-				std::vector<float> x;
+				static std::vector<float> x(0,0.0);
 				x.push_back(temp);
 				outputs[i] = x;	
 			}
@@ -101,7 +103,7 @@ void Neural::onEnd(const bool isWinner)
 				//test
 				neko = gamma * outputs[i + 1][0];
 				temp += alpha * (-1.0 + neko - temp);
-				std::vector<float> x;
+				std::vector<float> x(0,0.0);
 				x.push_back(temp);
 				outputs[i] = x;	
 			}
@@ -125,7 +127,7 @@ void Neural::onEnd(const bool isWinner)
 				//test
 				neko = gamma * outputs[i + 1][0];
 				temp += alpha * (1.0 + neko - temp);
-				std::vector<float> x;
+				std::vector<float> x(0,0.0);
 				x.push_back(temp);
 				outputs[i] = x;
 			}
@@ -145,7 +147,7 @@ void Neural::onEnd(const bool isWinner)
 				//test
 				neko = gamma * outputs[i + 1][0];
 				temp += alpha * (-1.0 + neko - temp);
-				std::vector<float> x;
+				std::vector<float> x(0,0.0);
 				x.push_back(temp);
 				outputs[i] = x;
 			}
@@ -190,6 +192,9 @@ void Neural::onEnd(const bool isWinner)
 		f_out << "failed";
 		f_out.close();
 	}
+	unsigned int decimal_point = net.save_to_fixed(writeDir+"test_fixed"+".net");
+	data.save_train_to_fixed(writeDir +"test"+".data", decimal_point);
+
 	std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + "for_omae.txt";
 	std::ofstream f_out(writeFile.c_str());
 	f_out << "failed";
@@ -235,10 +240,10 @@ void Neural::onEnd(const bool isWinner)
 //	outputs.clear();
 //	std::vector<std::vector<float> >().swap(inputs);
 //	std::vector<std::vector<float> >().swap(outputs);
-	/*
-	delete[]	tem1;
-	delete[]	tem2;
-	*/
+	
+//	delete[]	tem1;
+//	delete[]	tem2;
+	
 	std::string sriteFile = writeDir + BWAPI::Broodwar->enemy()->getName() + "_finish.txt";
 	std::ofstream l_out(sriteFile.c_str());
 	l_out << "failed";
@@ -283,21 +288,18 @@ void Neural::setActions()
 	srand((unsigned int)time(NULL));
 	//イプシロン=0.1でランダム化
 	if (rand()%10>8){
-		std::vector<float> 	actions(num_actions, 0.0);
-		std::vector<float>	input;
-		std::vector<float>  best_out(1,-10.0);
+		static std::vector<float> 	actions(num_actions, 0.0);
+		static std::vector<float>  best_out(1,-10.0);
 		//2のnum_actions乗について総当り
 			for (int j=0; j < num_actions; ++j){
 				int flag = ((rand() % (int)pow(2.0, num_actions)) >> j) % 2;
 				flag == 1 ? actions[j] = 1.0 : actions[j] = 0.0;
 			}
-			input.insert(input.end(), actions.begin(),
-				actions.end());
-			input.insert(input.end(), states.begin(),
+			actions.insert(actions.end(), states.begin(),
 				states.end());
-			best_out[0]=*net.run(&input[0]);
+			best_out[0]=*net.run(&actions[0]);
 			outputs.push_back(best_out);
-			inputs.push_back(input);
+			inputs.push_back(actions);
 	}
 	else{
 		selectBestAction();
@@ -306,25 +308,22 @@ void Neural::setActions()
 
 void Neural::selectBestAction(){
 
-	std::vector<float>  best_out(1,-10.0);
-	std::vector<float> 	actions(num_actions,0.0);
-	std::vector<float>	input;
+	static std::vector<float>  best_out(1,-10.0);
+	static std::vector<float> 	actions(num_actions,0.0);
 	//2のnum_actions乗について総当り
 	for (int i=0; i < (int)pow(2.0,num_actions);++i){
 		for (int j=0; j < num_actions; ++j){
 			int flag = (i >> j) % 2;
 			flag == 1 ? actions[j] = 1.0 : actions[j] = 0.0;
 		}
-		input.insert(input.end(), actions.begin(),
-			actions.end());
-			input.insert(input.end(), states.begin(),
+			actions.insert(actions.end(), states.begin(),
 				states.end());
 			//test
-			float calc_out = *net.run(&input[0]);
+			float calc_out = *net.run(&actions[0]);
 			if (best_out[0] < calc_out){
 				best_out[0] = calc_out;
 				outputs.push_back(best_out);
-				inputs.push_back(input);
+				inputs.push_back(actions);
 		}
 	}
 }
@@ -359,7 +358,7 @@ void Neural::setStates(){
 		own_region_num[currentUnit->getRegion()->getRegionGroupID()] ++;
 	}
 	//各Regionごとに味方ユニット数が1つ、2つ、3つ、4つ以上で場合わけ
-	std::vector<float>	temp(num_states, 0.0);
+	static std::vector<float>	temp(num_states, 0.0);
 	int count_temp = 0;
 	int value;
 	//mapのforeachをまわしてregionごとのUnit数をvectorに変換
@@ -432,7 +431,7 @@ void Neural::setStates(){
 	
 	//ローカル変数の状態をメンバ変数とスワップ
 	states.swap(temp);
-
+//	temp.swap(temp);
 }
 
 int Neural::setNumState(){
