@@ -167,7 +167,7 @@ void Neural::onEnd(const bool isWinner)
 
 	if (!net.save(writeDir + "test" + ".net"))
 	{
-		std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + ".txt";
+		std::string writeFile = writeDir + BWAPI::Broodwar->enemy()->getName() + "_save_failed.txt";
 		std::ofstream f_out(writeFile.c_str());
 		f_out << "failed";
 		f_out.close();
@@ -185,10 +185,22 @@ void	Neural::createNetwork()
 	//	cout << endl << "Creating network." << endl;
 	if (net.create_from_file(readDir + "test" + ".net")){
 		BWAPI::Broodwar->sendText("network read");
-		
+		std::stringstream ss;
+		ss << (unsigned int)time(NULL);
+		std::string writeFile = writeDir + "read_success" + ss.str() + ".txt";
+		std::ofstream f_out(writeFile.c_str());
+		f_out << "success";
+		f_out.close();
 	}
 	else
 	{
+		std::stringstream ss;
+		ss << (unsigned int)time(NULL);
+		std::string writeFile = writeDir + "read_failed" + ss.str() + ".txt";
+		std::ofstream f_out(writeFile.c_str());
+		f_out << "failed";
+		f_out.close();
+
 		BWAPI::Broodwar->sendText("new network constructed");
 		net.create_standard(num_layers, num_input, num_hidden, num_output);
 
