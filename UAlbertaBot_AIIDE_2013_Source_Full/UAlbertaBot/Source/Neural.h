@@ -9,8 +9,8 @@
 #include "base/WorkerManager.h"
 #include "base/StarcraftBuildOrderSearchManager.h"
 #include "floatfann.h"
-//#include "fann_cpp.h"
-#include "myfann_cpp.h"
+#include "fann_cpp.h"
+//#include "myfann_cpp.h"
 #include <sys/stat.h>
 #include <cstdlib>
 #include <boost/foreach.hpp>
@@ -42,8 +42,8 @@ class Neural
 
 //	std::vector<float> 	bestinput;
 
-	std::vector<std::vector<float> >	inputs;
-	std::vector<std::vector<float> >	outputs;
+	std::vector<float *>	inputs;
+	std::vector<float *>	outputs;
 
 	std::vector<float>	states;
 
@@ -87,7 +87,7 @@ public:
 
 	void				update();
 
-    std::vector<float> &		getActions();
+    float * &		getActions();
 
 
 };

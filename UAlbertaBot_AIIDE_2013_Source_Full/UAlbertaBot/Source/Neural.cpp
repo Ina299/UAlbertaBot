@@ -69,9 +69,7 @@ void Neural::onEnd(const bool isWinner)
 				//test
 				neko = gamma * outputs[i + 1][0];
 				temp += alpha * (1.0f + neko - temp);
-				std::vector<float> x;
-				x.push_back(temp);
-				outputs[i] = x;	
+				outputs[i][0] = temp;	
 			}
 		}
 		else
@@ -93,9 +91,7 @@ void Neural::onEnd(const bool isWinner)
 				//test
 				neko = gamma * outputs[i + 1][0];
 				temp += alpha * (-1.0f + neko - temp);
-				std::vector<float> x;
-				x.push_back(temp);
-				outputs[i] = x;	
+				outputs[i][0] = temp;	
 			}
 		}
 	}
@@ -119,7 +115,7 @@ void Neural::onEnd(const bool isWinner)
 				temp += alpha * (1.0f + neko - temp);
 				std::vector<float> x;
 				x.push_back(temp);
-				outputs[i] = x;
+				outputs[i][0] = temp;
 			}
 			
 		}
@@ -137,9 +133,7 @@ void Neural::onEnd(const bool isWinner)
 				//test
 				neko = gamma * outputs[i + 1][0];
 				temp += alpha * (-1.0f + neko - temp);
-				std::vector<float> x;
-				x.push_back(temp);
-				outputs[i] = x;
+				outputs[i][0] = temp;
 			}
 			
 		}
@@ -147,7 +141,7 @@ void Neural::onEnd(const bool isWinner)
 
 	FANN::training_data data;
 	//using my_fann
-	data.set_train_data(inputs,outputs);
+	data.set_train_data(count,num_input,&inputs[0],num_output,&outputs[0]);
 	BWAPI::Broodwar->printf("Create Data");
 
 	// Initialize and train the network with the data
@@ -206,8 +200,18 @@ void Neural::setActions()
 	srand((unsigned int)time(NULL));
 	//イプシロン=0.1でランダム化
 	if (rand()%10>6){
-		std::vector<float> 	actions(num_actions, 1.0f);
-		std::vector<float>  best_out(1,-10.0f);
+		/*
+		float * actions;
+		actions= new float[num_actions];
+		std::fill(actions,actions+num_actions,2.0f);
+		*/
+		std::vector<float>  actions(num_actions, 2.0f);
+		float * best_out;
+		best_out = new float[1];
+		best_out[0] = -10.0f;
+		float * input;
+		input = new float[num_input];
+		std::fill(input, input + num_input, 2.0f);
 		//2のnum_actions乗について総当り
 			for (int j=0; j < num_actions; ++j){
 				int flag = ((rand() % (int)pow(2.0, num_actions)) >> j) % 2;
@@ -215,9 +219,10 @@ void Neural::setActions()
 			}
 			actions.insert(actions.end(), states.begin(),
 				states.end());
+			for (int i = 0; i < num_input; i++) input[i] = actions[i];
 			best_out[0] = net.run(&actions[0])[0];
 			outputs.push_back(best_out);
-			inputs.push_back(actions);
+			inputs.push_back(input);
 	}
 	else{
 		selectBestAction();
@@ -225,9 +230,13 @@ void Neural::setActions()
 }
 
 void Neural::selectBestAction(){
-
- 	std::vector<float>  best_out(1,-10.0f);
+	float * best_out;
+	best_out = new float[1];
+	best_out[0] = -10.0f;
 	std::vector<float>  best_inputs(num_input,2.0f);
+	float * input;
+	input = new float[num_input];
+	std::fill(input, input + num_input, 2.0f);
 	//2のnum_actions乗について総当り
 	for (int i=0; i < (int)pow(2.0,num_actions);++i){
 		std::vector<float> 	actions(num_actions, 2.0f);
@@ -244,8 +253,9 @@ void Neural::selectBestAction(){
 				best_inputs.swap(actions);
 		}
 	}
+	for (int i = 0; i < num_input; i++) input[i] = best_inputs[i];
 	outputs.push_back(best_out);
-	inputs.push_back(best_inputs);
+	inputs.push_back(input);
 }
 
 
@@ -365,6 +375,6 @@ int Neural::setNumState(){
 	return region_count;
 }
 
-std::vector<float> & Neural::getActions(){
+float * & Neural::getActions(){
 	return inputs.back();
 }
