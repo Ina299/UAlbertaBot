@@ -19,7 +19,7 @@ const float learning_rate = 0.7f;
 //const int max_iterations = 300000;
 //const int iterations_between_reports = 1000;
 const float desired_error = 0.01f;
-const int max_iterations = 1;
+const int max_iterations = 3000;
 const int iterations_between_reports = 0;
 //‚±‚±‚©‚ç‹­‰»ŠwK‚Ìƒpƒ‰ƒ[ƒ^
 const float gamma = 0.95f;
@@ -138,7 +138,23 @@ void Neural::onEnd(const bool isWinner)
 			
 		}
 	}
+	/*
+	//“n‚·‚½‚ß‚Ì“ü‚ê•¨V‹KÀ‘•
+	float ** input;
+	input = new float*[count];
+	for (int i = 0; i < count; i++)input[i] = new float[num_input];
+	for (int i = 0; i < count; i++){
+		for (int j = 0; j < num_input;j++){
+			input[i][j] = inputs[i][j];
+		}
+	}
+	float ** output;
+	output= new float*[count];
+	for (int i = 0; i < count; i++)output[i] = new float[num_output];
+	for (int i = 0; i < count; i++)output[i][0] = outputs[i][0];
 
+	//
+	*/
 	FANN::training_data data;
 	//using my_fann
 	data.set_train_data(count,num_input,&inputs[0],num_output,&outputs[0]);
@@ -167,8 +183,9 @@ void Neural::onEnd(const bool isWinner)
 void	Neural::createNetwork()
 {
 	//	cout << endl << "Creating network." << endl;
-	if (net.create_from_file(writeDir + "test" + ".net")){
+	if (net.create_from_file(readDir + "test" + ".net")){
 		BWAPI::Broodwar->sendText("network read");
+		
 	}
 	else
 	{
@@ -219,6 +236,7 @@ void Neural::setActions()
 			}
 			actions.insert(actions.end(), states.begin(),
 				states.end());
+			std::vector<float>(actions).swap(actions);
 			for (int i = 0; i < num_input; i++) input[i] = actions[i];
 			best_out[0] = net.run(&actions[0])[0];
 			outputs.push_back(best_out);
@@ -253,6 +271,7 @@ void Neural::selectBestAction(){
 				best_inputs.swap(actions);
 		}
 	}
+	std::vector<float>(best_inputs).swap(best_inputs);
 	for (int i = 0; i < num_input; i++) input[i] = best_inputs[i];
 	outputs.push_back(best_out);
 	inputs.push_back(input);
