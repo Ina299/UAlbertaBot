@@ -230,6 +230,7 @@ void StrategyManager::onEnd(const bool isWinner)
 		
 		writeResults();
 	}
+
 }
 
 const double StrategyManager::getUCBValue(const size_t & strategy) const

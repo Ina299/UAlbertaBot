@@ -64,12 +64,7 @@ void Neural::onEnd(const bool isWinner)
 			outputs[count-1][0] = 1.0f;
 			
 			for (size_t i = count - 2 ; i > -1 ; --i){
-				float temp = outputs[i][0];
-				float neko;
-				//test
-				neko = gamma * outputs[i + 1][0];
-				temp += alpha * (1.0f + neko - temp);
-				outputs[i][0] = temp;	
+				outputs[i][0] += alpha * (1.0f + gamma * outputs[i + 1][0] - outputs[i][0]);
 			}
 		}
 		else
@@ -81,17 +76,7 @@ void Neural::onEnd(const bool isWinner)
 			*/
 			outputs[count-1][0] = -1.0f;
 			for (size_t i = count - 2; i > -1; --i){
-				/*
-				std::cout << "testa" << std::endl;
-				outputs[i][0] = outputs[i][0]
-					+ alpha*(-1.0 + gamma*outputs[i + 1][0] - outputs[i][0]);
-					*/
-				float temp = outputs[i][0];
-				float neko;
-				//test
-				neko = gamma * outputs[i + 1][0];
-				temp += alpha * (-1.0f + neko - temp);
-				outputs[i][0] = temp;	
+				outputs[i][0] += alpha * (-1.0f + gamma * outputs[i + 1][0] - outputs[i][0]);
 			}
 		}
 	}
@@ -103,19 +88,7 @@ void Neural::onEnd(const bool isWinner)
 		{
 			outputs[count-1][0] = 1.0f;
 			for (size_t i = count - 2; i > -1; --i){
-				/*
-				std::cout << "testa" << std::endl;
-				outputs[i][0] = outputs[i][0]
-					+ alpha*(1.0 + gamma*outputs[i + 1][0] - outputs[i][0]);
-					*/
-				float temp = outputs[i][0];
-				float neko;
-				//test
-				neko = gamma * outputs[i + 1][0];
-				temp += alpha * (1.0f + neko - temp);
-				std::vector<float> x;
-				x.push_back(temp);
-				outputs[i][0] = temp;
+				outputs[i][0] += alpha * (1.0f + gamma * outputs[i + 1][0] - outputs[i][0]);
 			}
 			
 		}
@@ -123,17 +96,14 @@ void Neural::onEnd(const bool isWinner)
 		{
 			outputs[count-1][0] = -1.0f;
 			for (size_t i = count - 2; i > -1; --i){
+				outputs[i][0] += alpha * (-1.0f + gamma * outputs[i + 1][0] - outputs[i][0]);
 				/*
-				std::cout << "testa" << std::endl;
-				outputs[i][0] = outputs[i][0]
-					+ alpha*(-1.0 + gamma*outputs[i + 1][0] - outputs[i][0]);
-				*/
 				float temp = outputs[i][0];
 				float neko;
-				//test
 				neko = gamma * outputs[i + 1][0];
 				temp += alpha * (-1.0f + neko - temp);
 				outputs[i][0] = temp;
+				*/
 			}
 			
 		}
@@ -153,7 +123,6 @@ void Neural::onEnd(const bool isWinner)
 	for (int i = 0; i < count; i++)output[i] = new float[num_output];
 	for (int i = 0; i < count; i++)output[i][0] = outputs[i][0];
 
-	//
 	*/
 	FANN::training_data data;
 	//using my_fann
@@ -172,10 +141,23 @@ void Neural::onEnd(const bool isWinner)
 		f_out << "failed";
 		f_out.close();
 	}
-	data.save_train(writeDir + "test" + ".data");
+	std::stringstream ss;
+	ss << (unsigned int)time(NULL);
+	data.save_train(writeDir + "test" +ss.str()+ ".data");
 	unsigned int decimal_point = net.save_to_fixed(writeDir + "test_fixed" + ".net");
 	data.save_train_to_fixed(writeDir + "test_fixed" + ".data", decimal_point);
-
+	if (isWinner){
+		std::string writeFile = writeDir + "win" + ss.str() + ".txt";
+		std::ofstream f_out(writeFile.c_str());
+		f_out << "won";
+		f_out.close();
+	}
+	else{
+		std::string writeFile = writeDir + "lost" + ss.str() + ".txt";
+		std::ofstream f_out(writeFile.c_str());
+		f_out << "lost";
+		f_out.close();
+	}
 
 }
 
@@ -210,8 +192,17 @@ void	Neural::createNetwork()
 		net.set_activation_steepness_output(1.0);
 		//change if you need
 		net.set_activation_function_hidden(FANN::SIGMOID_SYMMETRIC_STEPWISE);
-		net.set_activation_function_output(FANN::SIGMOID_SYMMETRIC_STEPWISE);
-
+		net.set_activation_function_output(FANN::LINEAR_PIECE);
+		/*
+		FANN::LINEAR				Linear activation function.
+		FANN::THRESHOLD				Threshold activation function.
+		FANN::THRESHOLD_SYMMETRIC	Threshold activation function.
+		FANN::SIGMOID				Sigmoid activation function.
+		FANN::SIGMOID_STEPWISE		Stepwise linear approximation to sigmoid.
+		FANN::SIGMOID_SYMMETRIC		Symmetric sigmoid activation function, aka. tanh.
+		FANN::SIGMOID_SYMMETRIC_STEPWISE		Stepwise linear approximation to symmetric sigmoid.
+		FANN::LINEAR_PIECE			Bounded linear activation function.-1<y<1
+		*/
 		// Set additional properties such as the training algorithm
 		net.set_training_algorithm(FANN::TRAIN_QUICKPROP);
 	}
