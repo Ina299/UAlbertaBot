@@ -87,7 +87,7 @@ public:
 
 	void				update();
 
-	const std::vector<float> &		getActions();
+    std::vector<float> &		getActions();
 
 
 };
