@@ -141,9 +141,18 @@ void Neural::onEnd(const bool isWinner)
 		f_out << "failed";
 		f_out.close();
 	}
+	/*
 	std::stringstream ss;
 	ss << (unsigned int)time(NULL);
 	data.save_train(writeDir + "test" +ss.str()+ ".data");
+	*/
+	for (int i = 0; i < inputs.size(); ++i){
+		delete inputs[i];
+	}
+	for (int i = 0; i < outputs.size(); ++i){
+		delete outputs[i];
+	}
+
 	//勝敗などのデータ
 	/*
 	unsigned int decimal_point = net.save_to_fixed(writeDir + "test_fixed" + ".net");
@@ -170,21 +179,25 @@ void	Neural::createNetwork()
 	//	cout << endl << "Creating network." << endl;
 	if (net.create_from_file(readDir + "test" + ".net")){
 		BWAPI::Broodwar->sendText("network read");
+		/*
 		std::stringstream ss;
 		ss << (unsigned int)time(NULL);
 		std::string writeFile = writeDir + "read_success" + ss.str() + ".txt";
 		std::ofstream f_out(writeFile.c_str());
 		f_out << "success";
 		f_out.close();
+		*/
 	}
 	else
 	{
+		/*
 		std::stringstream ss;
 		ss << (unsigned int)time(NULL);
 		std::string writeFile = writeDir + "read_failed" + ss.str() + ".txt";
 		std::ofstream f_out(writeFile.c_str());
 		f_out << "failed";
 		f_out.close();
+		*/
 
 		BWAPI::Broodwar->sendText("new network constructed");
 		net.create_standard(num_layers, num_input, num_hidden, num_output);
@@ -195,7 +208,7 @@ void	Neural::createNetwork()
 		net.set_activation_steepness_output(1.0);
 		//change if you need
 		net.set_activation_function_hidden(FANN::SIGMOID_SYMMETRIC_STEPWISE);
-		net.set_activation_function_output(FANN::LINEAR_PIECE);
+		net.set_activation_function_output(FANN::LINEAR);
 		/*
 		FANN::LINEAR				Linear activation function.
 		FANN::THRESHOLD				Threshold activation function.
@@ -221,8 +234,8 @@ void Neural::setActions()
 {
 //	BWAPI::Broodwar->sendText("SelectStrategy");
 	srand((unsigned int)time(NULL));
-	//イプシロン=0.1でランダム化
-	if (rand()%10>6){
+	//イプシロン=0.2でランダム化
+	if (rand()%10>7){
 		/*
 		float * actions;
 		actions= new float[num_actions];

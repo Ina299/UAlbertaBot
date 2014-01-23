@@ -6,6 +6,8 @@
 
 #include <BWAPI.h>
 #include <BWTA.h>
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
 
 #include "UAlbertaBotModule.h"
 namespace BWAPI { Game* Broodwar; }
@@ -18,6 +20,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 	switch (ul_reason_for_call)
 	{
 		case DLL_PROCESS_ATTACH:
+			_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 			BWAPI::BWAPI_init();
 			break;
 		case DLL_PROCESS_DETACH:

@@ -12,6 +12,10 @@
 
 #include "Common.h"
 #include "UAlbertaBotModule.h"
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
 
 
 BWAPI::AIModule * __NewAIModule()
@@ -25,7 +29,9 @@ UAlbertaBotModule::~UAlbertaBotModule() {}
 void UAlbertaBotModule::onStart()
 {
 	BWAPI::Broodwar->setLocalSpeed(0);
-//	BWAPI::Broodwar->setFrameSkip(240);
+	//at first 240
+	BWAPI::Broodwar->setFrameSkip(100);
+	BWAPI::Broodwar->setGUI(false);
 	BWAPI::Broodwar->printf("Main Started");
     SparCraft::init();
 
@@ -88,6 +94,8 @@ void UAlbertaBotModule::onEnd(bool isWinner)
 
 		ProductionManager::Instance().onGameEnd();
 	}	
+
+	_CrtDumpMemoryLeaks();
 }
 
 void UAlbertaBotModule::onFrame()
