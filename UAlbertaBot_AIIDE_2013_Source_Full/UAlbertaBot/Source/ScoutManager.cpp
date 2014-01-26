@@ -8,7 +8,7 @@ ScoutManager::ScoutManager() : workerScout(NULL), numWorkerScouts(0), scoutUnder
 
 void ScoutManager::update(const std::set<BWAPI::Unit *> & scoutUnits)
 {
-	if (Neural::Instance().getActions()[3] == 0.0){
+	if (Neural::Instance().getActions()[4] == 1.0){
 		if (scoutUnits.size() == 1)
 		{
 			BWAPI::Unit * scoutUnit = *scoutUnits.begin();

@@ -8,10 +8,10 @@
 #include <memory>
 
 //ここからニューラルネットのパラメータ
-const int num_actions = 4;
+const int num_actions = 5;
 const int unit_count = 2;
 const int num_layers = 3;
-const int num_hidden = 3;
+const int num_hidden = 40;
 const int num_output = 1;
 const float learning_rate = 0.7f;
 //origin
@@ -19,11 +19,11 @@ const float learning_rate = 0.7f;
 //const int max_iterations = 300000;
 //const int iterations_between_reports = 1000;
 const float desired_error = 0.01f;
-const int max_iterations = 3000;
+const int max_iterations = 5000;
 const int iterations_between_reports = 0;
 //ここから強化学習のパラメータ
 const float gamma = 0.95f;
-const float alpha = 0.7f;
+const float alpha = 0.2f;
 const std::string writeDir = "bwapi-data\\write\\";
 const std::string readDir = "bwapi-data\\read\\";
 
@@ -64,7 +64,7 @@ void Neural::onEnd(const bool isWinner)
 			outputs[count-1][0] = 1.0f;
 			
 			for (size_t i = count - 2 ; i > -1 ; --i){
-				outputs[i][0] += alpha * (1.0f + gamma * outputs[i + 1][0] - outputs[i][0]);
+				outputs[i][0] += alpha * (gamma * outputs[i + 1][0] - outputs[i][0]);
 			}
 		}
 		else
@@ -76,7 +76,7 @@ void Neural::onEnd(const bool isWinner)
 			*/
 			outputs[count-1][0] = -1.0f;
 			for (size_t i = count - 2; i > -1; --i){
-				outputs[i][0] += alpha * (-1.0f + gamma * outputs[i + 1][0] - outputs[i][0]);
+				outputs[i][0] += alpha * (gamma * outputs[i + 1][0] - outputs[i][0]);
 			}
 		}
 	}
@@ -88,7 +88,7 @@ void Neural::onEnd(const bool isWinner)
 		{
 			outputs[count-1][0] = 1.0f;
 			for (size_t i = count - 2; i > -1; --i){
-				outputs[i][0] += alpha * (1.0f + gamma * outputs[i + 1][0] - outputs[i][0]);
+				outputs[i][0] += alpha * (gamma * outputs[i + 1][0] - outputs[i][0]);
 			}
 			
 		}
@@ -96,7 +96,7 @@ void Neural::onEnd(const bool isWinner)
 		{
 			outputs[count-1][0] = -1.0f;
 			for (size_t i = count - 2; i > -1; --i){
-				outputs[i][0] += alpha * (-1.0f + gamma * outputs[i + 1][0] - outputs[i][0]);
+				outputs[i][0] += alpha * (gamma * outputs[i + 1][0] - outputs[i][0]);
 				/*
 				float temp = outputs[i][0];
 				float neko;
@@ -190,14 +190,13 @@ void	Neural::createNetwork()
 	}
 	else
 	{
-		/*
+		
 		std::stringstream ss;
 		ss << (unsigned int)time(NULL);
 		std::string writeFile = writeDir + "read_failed" + ss.str() + ".txt";
 		std::ofstream f_out(writeFile.c_str());
 		f_out << "failed";
 		f_out.close();
-		*/
 
 		BWAPI::Broodwar->sendText("new network constructed");
 		net.create_standard(num_layers, num_input, num_hidden, num_output);
@@ -208,7 +207,7 @@ void	Neural::createNetwork()
 		net.set_activation_steepness_output(1.0);
 		//change if you need
 		net.set_activation_function_hidden(FANN::SIGMOID_SYMMETRIC_STEPWISE);
-		net.set_activation_function_output(FANN::LINEAR);
+		net.set_activation_function_output(FANN::LINEAR_PIECE);
 		/*
 		FANN::LINEAR				Linear activation function.
 		FANN::THRESHOLD				Threshold activation function.
@@ -234,8 +233,8 @@ void Neural::setActions()
 {
 //	BWAPI::Broodwar->sendText("SelectStrategy");
 	srand((unsigned int)time(NULL));
-	//イプシロン=0.2でランダム化
-	if (rand()%10>7){
+	//イプシロン=0.15でランダム化
+	if (rand()%20>16){
 		/*
 		float * actions;
 		actions= new float[num_actions];
@@ -378,18 +377,18 @@ void Neural::setStates(){
 
 	if (enemyRace == BWAPI::Races::Protoss)
 	{
-		temp[count_temp] = 1.0f;
-		temp[count_temp+1] = 1.0f;
+		temp[count_temp] = 0.0f;
+		temp[count_temp+1] = 0.0f;
 	}
 	else if (enemyRace == BWAPI::Races::Terran)
 	{
-		temp[count_temp] = 1.0f;
+		temp[count_temp] = 0.0f;
 		temp[count_temp + 1] = 1.0f;
 	}
 	else if (enemyRace == BWAPI::Races::Zerg)
 	{
 		temp[count_temp] = 1.0f;
-		temp[count_temp + 1] = 1.0f;
+		temp[count_temp + 1] = 0.0f;
 	}
 	else
 	{
